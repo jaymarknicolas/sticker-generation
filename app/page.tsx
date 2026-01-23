@@ -17,14 +17,16 @@ import { Style, SelectedStyle } from "@/lib/types";
 import { STICKER_STYLES } from "@/lib/prompt-builder";
 
 // Convert STICKER_STYLES to array format for display
-const styles: Style[] = Object.entries(STICKER_STYLES).map(([key, value], index) => ({
-  id: String(index + 1),
-  name: value.name,
-  type: key,
-  image: value.color,
-  previewImage: value.previewImage,
-  description: value.description,
-}));
+const styles: Style[] = Object.entries(STICKER_STYLES).map(
+  ([key, value], index) => ({
+    id: String(index + 1),
+    name: value.name,
+    type: key,
+    image: value.color,
+    previewImage: value.previewImage,
+    description: value.description,
+  }),
+);
 
 const recentStyles = [
   { id: "r1", name: "Anime", featured: true },
@@ -36,7 +38,9 @@ const recentStyles = [
 
 export default function Home() {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
-  const [selectedStyle, setSelectedStyle] = useState<SelectedStyle | null>(null);
+  const [selectedStyle, setSelectedStyle] = useState<SelectedStyle | null>(
+    null,
+  );
   const [customPrompt, setCustomPrompt] = useState("");
   const [isAdvanced, setIsAdvanced] = useState(false);
   const [showDesignPicker, setShowDesignPicker] = useState(false);
@@ -72,7 +76,8 @@ export default function Home() {
     setLocalError(null);
 
     // Build subject from custom prompt or use default
-    const subject = customPrompt.trim() ||
+    const subject =
+      customPrompt.trim() ||
       (uploadedImage ? "the uploaded image subject" : "a creative character");
 
     await generate({
@@ -154,11 +159,16 @@ export default function Home() {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-              <Sparkles className="w-4 sm:w-5 h-4 sm:h-5 text-white" fill="currentColor" />
+              <Sparkles
+                className="w-4 sm:w-5 h-4 sm:h-5 text-white"
+                fill="currentColor"
+              />
             </div>
             <div>
               <h1 className="text-lg sm:text-xl font-bold">Synthetik</h1>
-              <p className="text-xs text-muted-foreground hidden sm:block">AI Sticker Studio</p>
+              <p className="text-xs text-muted-foreground hidden sm:block">
+                AI Sticker Studio
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -205,10 +215,15 @@ export default function Home() {
               </div>
               <div>
                 <h2 className="text-lg sm:text-xl font-bold">Upload Photo</h2>
-                <p className="text-xs sm:text-sm text-muted-foreground">Optional reference image</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  Optional reference image
+                </p>
               </div>
             </div>
-            <ImageUpload onImageUpload={setUploadedImage} image={uploadedImage} />
+            <ImageUpload
+              onImageUpload={setUploadedImage}
+              image={uploadedImage}
+            />
           </section>
 
           {/* Right Column - Style & Generate */}
@@ -220,10 +235,14 @@ export default function Home() {
                   <div className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-primary text-primary-foreground text-sm font-bold">
                     2
                   </div>
-                  <h2 className="text-lg sm:text-xl font-bold">Choose Your Style</h2>
+                  <h2 className="text-lg sm:text-xl font-bold">
+                    Choose Your Style
+                  </h2>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs sm:text-sm text-muted-foreground">Advanced</span>
+                  <span className="text-xs sm:text-sm text-muted-foreground">
+                    Advanced
+                  </span>
                   <Switch
                     checked={isAdvanced}
                     onCheckedChange={setIsAdvanced}
@@ -231,25 +250,29 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className={`grid gap-2 sm:gap-3 ${
-                isAdvanced
-                  ? "grid-cols-4 sm:grid-cols-5 md:grid-cols-4 lg:grid-cols-5"
-                  : "grid-cols-3"
-              }`}>
-                {styles.slice(0, isAdvanced ? styles.length : 6).map((style) => (
-                  <StyleCard
-                    key={style.id}
-                    style={style}
-                    isSelected={selectedStyle?.id === style.id}
-                    onClick={() =>
-                      setSelectedStyle({
-                        id: style.id,
-                        name: style.name,
-                        type: style.type,
-                      })
-                    }
-                  />
-                ))}
+              <div
+                className={`grid gap-2 sm:gap-3 ${
+                  isAdvanced
+                    ? "grid-cols-4 sm:grid-cols-5 md:grid-cols-4 lg:grid-cols-5"
+                    : "grid-cols-3"
+                }`}
+              >
+                {styles
+                  .slice(0, isAdvanced ? styles.length : 6)
+                  .map((style) => (
+                    <StyleCard
+                      key={style.id}
+                      style={style}
+                      isSelected={selectedStyle?.id === style.id}
+                      onClick={() =>
+                        setSelectedStyle({
+                          id: style.id,
+                          name: style.name,
+                          type: style.type,
+                        })
+                      }
+                    />
+                  ))}
               </div>
               {!isAdvanced && (
                 <p className="text-xs text-muted-foreground text-center">
@@ -287,10 +310,30 @@ export default function Home() {
             </section>
 
             {/* Recently Used */}
-            <RecentlyUsed
-              styles={recentStyles}
-              onStyleClick={(style) => setSelectedStyle(style)}
-            />
+            <div className="flex gap-2 py-4 sm:gap-4 overflow-x-auto pb-2 -mx-3 px-3 sm:-mx-4 sm:px-4">
+              {styles?.length > 0 &&
+                (() => {
+                  // const shuffled = [...styles];
+                  // for (let i = shuffled.length - 1; i > 0; i--) {
+                  //   const j = Math.floor(Math.random() * (i + 1));
+                  //   [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                  // }
+                  return styles.slice(0, 6).map((style) => (
+                    <RecentlyUsed
+                      key={style.id}
+                      style={style}
+                      isSelected={selectedStyle?.id === style.id}
+                      onClick={() =>
+                        setSelectedStyle({
+                          id: style.id,
+                          name: style.name,
+                          type: style.type,
+                        })
+                      }
+                    />
+                  ));
+                })()}
+            </div>
 
             {/* Generate Button */}
             <Button

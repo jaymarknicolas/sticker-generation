@@ -51,43 +51,114 @@ function cleanBase64Image(imageBase64: string): string {
 }
 
 /**
- * Comprehensive structure for parsed image analysis
+ * Comprehensive structure for parsed image analysis - Detective Level Detail
  */
 interface PersonDetail {
+  // Position & Distance
   position: string;
+  distanceFromCamera: string;
+  // Demographics
   gender: string;
-  age: string;
+  approximateAge: string;
+  ethnicity: string;
   skinTone: string;
+  // Face Details
+  faceShape: string;
+  facialFeatures: string;
+  eyebrows: string;
+  eyes: string;
+  nose: string;
+  lips: string;
+  // Hair
   hairColor: string;
+  hairTexture: string;
+  hairLength: string;
   hairStyle: string;
+  facialHair: string;
+  // Expression & Emotion
   facialExpression: string;
-  emotion: string;
-  pose: string;
-  action: string;
-  clothingTop: string;
-  clothingBottom: string;
-  accessories: string;
+  emotionalState: string;
+  eyeContact: string;
+  // Body & Pose
+  headPosition: string;
+  bodyPosture: string;
+  armPosition: string;
+  handDetails: string;
   bodyType: string;
+  height: string;
+  // Accessories - Head & Face
+  headwear: string;
+  eyewear: string;
+  earAccessories: string;
+  // Accessories - Neck & Body
+  neckAccessories: string;
+  wristAccessories: string;
+  fingerAccessories: string;
+  // Clothing
+  topClothing: string;
+  topClothingDetails: string;
+  bottomClothing: string;
+  bottomClothingDetails: string;
+  footwear: string;
+  outerLayer: string;
+  // Carried Items
+  bagOrCarry: string;
+  otherAccessories: string;
+  // Style
+  clothingCondition: string;
+  overallStyle: string;
 }
 
 interface ObjectDetail {
   name: string;
+  type: string;
   color: string;
+  material: string;
   size: string;
   position: string;
   details: string;
 }
 
+interface AnimalDetail {
+  species: string;
+  breed: string;
+  color: string;
+  size: string;
+  position: string;
+  pose: string;
+  expression: string;
+  accessories: string;
+  notableFeatures: string;
+}
+
+interface BackgroundDetail {
+  setting: string;
+  indoorOutdoor: string;
+  mainElements: string;
+  dominantColors: string;
+  lighting: string;
+  atmosphere: string;
+}
+
+interface PhotoComposition {
+  shotType: string;
+  angle: string;
+  framing: string;
+}
+
 interface ImageAnalysis {
   imageType: "people" | "objects" | "mixed" | "animal" | "scene";
   totalPeople: number;
+  totalAnimals: number;
   totalObjects: number;
   people: PersonDetail[];
+  animals: AnimalDetail[];
   objects: ObjectDetail[];
-  background: string;
-  lighting: string;
+  subjectInteraction: string;
+  background: BackgroundDetail;
+  photoComposition: PhotoComposition;
   overallMood: string;
-  arrangement: string;
+  dominantColors: string[];
 }
 
 /**
@@ -106,55 +177,121 @@ async function analyzeImageWithVision(
       messages: [
         {
           role: "system",
-          content: `You are an expert visual analyst for artists. Analyze images with extreme precision and detail. Your descriptions will be used to recreate the image as stylized artwork. Be accurate about counts, colors, positions, and all visual details. Output valid JSON only.`,
+          content: `You are a FORENSIC VISUAL DETECTIVE - the world's best observer. Your job is to analyze images with EXTREME precision like you're documenting evidence. Miss NOTHING about the subjects. Every detail matters: what they wear, how they stand, their expression, accessories, colors. You have a photographic memory for details. Output valid JSON only.`,
         },
         {
           role: "user",
           content: [
             {
               type: "text",
-              text: `Analyze this image in EXTREME DETAIL. Return JSON with this structure:
+              text: `DETECTIVE ANALYSIS - Examine this image like evidence. Document EVERY observable detail.
+
+PRIORITY: 100% DETAIL ON SUBJECTS (people/animals/objects) + 30% BACKGROUND CONTEXT
+
+Return JSON:
 
 {
   "imageType": "people/objects/mixed/animal/scene",
-  "totalPeople": <exact number, 0 if none>,
-  "totalObjects": <number of main objects if no people>,
+  "totalPeople": <COUNT HEADS CAREFULLY - this is CRITICAL>,
+  "totalAnimals": <exact count>,
+  "totalObjects": <main objects count>,
   "people": [
     {
-      "position": "left/center/right/front/back",
-      "gender": "male/female/unclear",
-      "age": "baby/toddler/child/teenager/young adult/adult/middle-aged/senior",
-      "skinTone": "very dark brown/dark brown/medium brown/light brown/tan/olive/fair/pale/pink",
-      "hairColor": "black/dark brown/brown/light brown/blonde/red/gray/white/dyed color",
-      "hairStyle": "short/medium/long, straight/wavy/curly/coily, specific style like ponytail/braids/bun/afro",
-      "facialExpression": "smiling/laughing/neutral/serious/surprised/etc",
-      "emotion": "happy/joyful/content/excited/calm/etc",
-      "pose": "standing/sitting/kneeling/leaning/hugging/etc",
-      "action": "what they are doing - looking at camera/talking/waving/holding something/etc",
-      "clothingTop": "exact color and type - e.g., navy blue polo shirt, white t-shirt with red stripes",
-      "clothingBottom": "exact color and type - e.g., blue jeans, black shorts, pink skirt",
-      "accessories": "glasses/hat/jewelry/watch/none",
-      "bodyType": "slim/average/athletic/heavy"
+      "position": "left/center/right/foreground/background",
+      "distanceFromCamera": "close-up/medium/far",
+      "gender": "male/female",
+      "approximateAge": "infant/toddler/child (3-12)/teenager (13-19)/young adult (20-35)/adult (36-50)/middle-aged (51-65)/senior (65+)",
+      "ethnicity": "observed ethnicity",
+      "skinTone": "very dark brown/dark brown/medium brown/caramel/tan/olive/light brown/fair/pale/pink",
+      "faceShape": "oval/round/square/heart/oblong/diamond",
+      "facialFeatures": "notable features - prominent cheekbones, dimples, freckles, moles, scars",
+      "hairColor": "jet black/black/dark brown/medium brown/light brown/dirty blonde/blonde/strawberry blonde/red/auburn/gray/silver/white/bald/dyed [color]",
+      "hairTexture": "straight/wavy/curly/coily/kinky",
+      "hairLength": "bald/shaved/buzzcut/short/ear-length/chin-length/shoulder-length/mid-back/long",
+      "hairStyle": "loose/ponytail/bun/braids/cornrows/dreadlocks/afro/mohawk/slicked back/parted/messy/styled",
+      "facialHair": "none/clean shaven/5 o'clock shadow/stubble/mustache/goatee/short beard/full beard/long beard",
+      "eyebrows": "thin/medium/thick/arched/straight/bushy",
+      "eyes": "shape and color - round brown/almond black/hooded blue/etc",
+      "nose": "small/medium/large/wide/narrow/pointed/rounded",
+      "lips": "thin/medium/full",
+      "facialExpression": "broad smile showing teeth/closed-mouth smile/slight smirk/neutral/serious/frowning/laughing/surprised/thoughtful/squinting",
+      "emotionalState": "happy/joyful/content/excited/proud/confident/relaxed/focused/pensive/tired",
+      "eyeContact": "looking directly at camera/looking away left/looking away right/looking up/looking down/eyes closed",
+      "headPosition": "straight/tilted left/tilted right/looking up/looking down/turned left/turned right",
+      "bodyPosture": "standing straight/standing relaxed/leaning/sitting upright/sitting relaxed/crouching/kneeling/lying down",
+      "armPosition": "at sides/crossed/on hips/raised/one raised/holding something/hugging/gesturing",
+      "handDetails": "visible hands doing what - holding phone/in pockets/making gesture/etc",
+      "bodyType": "petite/slim/lean/average/athletic/muscular/stocky/heavy/plus-size",
+      "height": "appears short/average/tall relative to others or objects",
+      "headwear": "none/baseball cap [color]/snapback [color]/beanie [color]/bucket hat/sun hat/fedora/visor/headband/bandana/hijab [color]/turban [color]/helmet/hood up",
+      "eyewear": "none/prescription glasses [frame color and style]/sunglasses [style - aviator/wayfarer/round/sport] [color]/reading glasses",
+      "earAccessories": "none/stud earrings [color/material]/hoop earrings [size]/dangling earrings/ear cuff/airpods/headphones",
+      "neckAccessories": "none/thin chain necklace [color]/thick chain [color]/pendant necklace/choker/scarf [color and pattern]/tie [color and pattern]/bowtie",
+      "wristAccessories": "none/watch [style and color]/bracelet [type]/multiple bracelets/fitness band/bangles",
+      "fingerAccessories": "none/ring(s) [which finger, color]",
+      "topClothing": "[EXACT color] [material if visible] [style] - e.g., 'navy blue cotton polo shirt with white collar and small logo on chest'",
+      "topClothingDetails": "buttons/zipper/graphics/logos/text/patterns/collar style/sleeve length",
+      "bottomClothing": "[EXACT color] [material] [style] - e.g., 'faded light blue denim skinny jeans with ripped knees'",
+      "bottomClothingDetails": "fit/rips/patterns/pockets visible",
+      "footwear": "not visible/barefoot/[EXACT color] [brand if visible] [style] - e.g., 'white Nike Air Force 1 sneakers'",
+      "outerLayer": "none/jacket [color, type]/hoodie [color]/coat [color, type]/vest/cardigan",
+      "bagOrCarry": "none/backpack [color]/handbag [color]/tote/messenger bag/shopping bag/briefcase",
+      "otherAccessories": "none/belt [color]/umbrella/phone in hand/drink/food/book/camera/any held items",
+      "clothingCondition": "neat/casual/wrinkled/formal/sporty/dressed up/dressed down",
+      "overallStyle": "casual/formal/business casual/sporty/streetwear/bohemian/elegant/grunge"
+    }
+  ],
+  "animals": [
+    {
+      "species": "specific animal",
+      "breed": "breed if identifiable",
+      "color": "detailed fur/feather colors and patterns",
+      "size": "toy/small/medium/large/giant",
+      "position": "location in frame",
+      "pose": "sitting/standing/lying/walking/running/playing",
+      "expression": "happy/alert/sleepy/playful/anxious/calm",
+      "accessories": "collar [color]/leash/clothing/harness/none",
+      "notableFeatures": "any distinctive markings or features"
     }
   ],
   "objects": [
     {
       "name": "object name",
+      "type": "category",
       "color": "exact colors",
-      "size": "small/medium/large relative to image",
-      "position": "where in image",
-      "details": "specific details"
+      "material": "material type",
+      "size": "relative size",
+      "position": "where in frame",
+      "details": "notable details"
     }
   ],
-  "background": "detailed description of background - indoor/outdoor, colors, setting",
-  "lighting": "bright/soft/natural/artificial/warm/cool",
-  "overallMood": "cheerful/serious/romantic/playful/professional",
-  "arrangement": "how subjects are positioned relative to each other"
+  "subjectInteraction": "how subjects interact - hugging/holding hands/talking/looking at each other/standing apart/grouped together",
+  "background": {
+    "setting": "specific location type",
+    "indoorOutdoor": "indoor/outdoor/partially covered",
+    "mainElements": "key background elements briefly",
+    "dominantColors": "2-3 main background colors",
+    "lighting": "natural daylight/overcast/sunset/artificial/mixed/flash/studio",
+    "atmosphere": "mood of the setting"
+  },
+  "photoComposition": {
+    "shotType": "extreme close-up/close-up/medium close-up/medium shot/medium full/full shot/wide shot",
+    "angle": "eye level/slight low/low angle/slight high/high angle/bird's eye/worm's eye",
+    "framing": "centered/rule of thirds/off-center left/off-center right"
+  },
+  "overallMood": "the emotional feeling of the image",
+  "dominantColors": ["top 5 colors in entire image"]
 }
 
-COUNT CAREFULLY. If 1 person, totalPeople=1. If 3 people, totalPeople=3.
-Be SPECIFIC about skin tones - they matter for accurate recreation.
-Describe EXACT clothing colors (not just "shirt" but "light blue denim shirt").`,
+DETECTIVE RULES:
+1. COUNT SUBJECTS PRECISELY - Count every head visible. 1 person = 1. 3 people = 3. NO GUESSING.
+2. ACCESSORIES ARE EVIDENCE - Caps, hats, glasses, sunglasses, jewelry, watches = DOCUMENT ALL
+3. COLORS ARE SPECIFIC - Not "blue" but "navy blue" or "sky blue" or "royal blue"
+4. SKIN TONES MATTER - Be precise and respectful: dark brown, medium brown, light brown, tan, olive, fair
+5. CLOTHING IS IDENTITY - Full description with colors, style, any visible brands/logos
+6. EXPRESSIONS TELL STORIES - Capture the exact facial expression and emotional state
+7. POSES REVEAL CHARACTER - Document how they stand, sit, gesture
+8. NOTHING IS INSIGNIFICANT - If you can see it, document it`,
             },
             {
               type: "image_url",
@@ -166,7 +303,7 @@ Describe EXACT clothing colors (not just "shirt" but "light blue denim shirt").`
           ],
         },
       ],
-      max_tokens: 1200,
+      max_tokens: 2000,
       response_format: { type: "json_object" },
     });
 
@@ -202,23 +339,31 @@ Describe EXACT clothing colors (not just "shirt" but "light blue denim shirt").`
 function buildDetailedDescription(analysis: ImageAnalysis): string {
   const parts: string[] = [];
 
-  // Handle people
+  // Handle people - FULL DETECTIVE DETAIL
   if (analysis.totalPeople > 0 && analysis.people?.length > 0) {
     parts.push(`EXACTLY ${analysis.totalPeople} ${analysis.totalPeople === 1 ? "person" : "people"}`);
 
     analysis.people.forEach((person, index) => {
       const personDesc: string[] = [];
 
-      // Position
+      // Position & Distance
       const pos = person.position || `person ${index + 1}`;
       personDesc.push(`[${pos.toUpperCase()}]:`);
+      if (person.distanceFromCamera) {
+        personDesc.push(`(${person.distanceFromCamera})`);
+      }
 
       // Gender and age
       if (person.gender && person.gender !== "unclear") {
         personDesc.push(`${person.gender}`);
       }
-      if (person.age) {
-        personDesc.push(`${person.age}`);
+      if (person.approximateAge) {
+        personDesc.push(`${person.approximateAge}`);
+      }
+
+      // Ethnicity
+      if (person.ethnicity) {
+        personDesc.push(`${person.ethnicity}`);
       }
 
       // Skin tone (critical)
@@ -226,74 +371,202 @@ function buildDetailedDescription(analysis: ImageAnalysis): string {
         personDesc.push(`with ${person.skinTone} skin`);
       }
 
-      // Hair
-      if (person.hairColor || person.hairStyle) {
-        const hair = [person.hairColor, person.hairStyle].filter(Boolean).join(" ");
-        personDesc.push(`${hair} hair`);
+      // Face details
+      if (person.faceShape) {
+        personDesc.push(`${person.faceShape} face`);
+      }
+      if (person.facialFeatures && person.facialFeatures !== "none") {
+        personDesc.push(`(${person.facialFeatures})`);
       }
 
-      // Body type
+      // Eyes
+      if (person.eyes) {
+        personDesc.push(`${person.eyes}`);
+      }
+
+      // Hair (comprehensive)
+      const hairParts = [person.hairColor, person.hairLength, person.hairTexture, person.hairStyle].filter(Boolean);
+      if (hairParts.length > 0) {
+        personDesc.push(`${hairParts.join(" ")} hair`);
+      }
+
+      // Facial hair
+      if (person.facialHair && person.facialHair !== "none" && person.facialHair !== "clean shaven") {
+        personDesc.push(`with ${person.facialHair}`);
+      }
+
+      // Body type & height
       if (person.bodyType && person.bodyType !== "average") {
         personDesc.push(`${person.bodyType} build`);
       }
-
-      // Clothing (critical)
-      const clothing: string[] = [];
-      if (person.clothingTop) clothing.push(person.clothingTop);
-      if (person.clothingBottom) clothing.push(person.clothingBottom);
-      if (clothing.length > 0) {
-        personDesc.push(`wearing ${clothing.join(" and ")}`);
+      if (person.height) {
+        personDesc.push(`(${person.height})`);
       }
 
-      // Accessories
-      if (person.accessories && person.accessories !== "none") {
-        personDesc.push(`with ${person.accessories}`);
+      // ACCESSORIES (critical)
+      const accessories: string[] = [];
+      if (person.headwear && person.headwear !== "none") {
+        accessories.push(`${person.headwear}`);
+      }
+      if (person.eyewear && person.eyewear !== "none") {
+        accessories.push(`${person.eyewear}`);
+      }
+      if (person.earAccessories && person.earAccessories !== "none") {
+        accessories.push(`${person.earAccessories}`);
+      }
+      if (person.neckAccessories && person.neckAccessories !== "none") {
+        accessories.push(`${person.neckAccessories}`);
+      }
+      if (person.wristAccessories && person.wristAccessories !== "none") {
+        accessories.push(`${person.wristAccessories}`);
+      }
+      if (person.fingerAccessories && person.fingerAccessories !== "none") {
+        accessories.push(`${person.fingerAccessories}`);
+      }
+      if (accessories.length > 0) {
+        personDesc.push(`wearing ${accessories.join(", ")}`);
+      }
+
+      // Clothing (critical - all pieces with details)
+      const clothing: string[] = [];
+      if (person.outerLayer && person.outerLayer !== "none") {
+        clothing.push(person.outerLayer);
+      }
+      if (person.topClothing) {
+        const topWithDetails = person.topClothingDetails
+          ? `${person.topClothing} (${person.topClothingDetails})`
+          : person.topClothing;
+        clothing.push(topWithDetails);
+      }
+      if (person.bottomClothing) {
+        const bottomWithDetails = person.bottomClothingDetails
+          ? `${person.bottomClothing} (${person.bottomClothingDetails})`
+          : person.bottomClothing;
+        clothing.push(bottomWithDetails);
+      }
+      if (person.footwear && person.footwear !== "not visible") {
+        clothing.push(person.footwear);
+      }
+      if (clothing.length > 0) {
+        personDesc.push(`dressed in ${clothing.join(", ")}`);
+      }
+
+      // Bags and carried items
+      if (person.bagOrCarry && person.bagOrCarry !== "none") {
+        personDesc.push(`carrying ${person.bagOrCarry}`);
+      }
+      if (person.otherAccessories && person.otherAccessories !== "none") {
+        personDesc.push(`with ${person.otherAccessories}`);
+      }
+
+      // Style
+      if (person.overallStyle) {
+        personDesc.push(`${person.overallStyle} style`);
       }
 
       // Expression and emotion
       if (person.facialExpression) {
         personDesc.push(`${person.facialExpression}`);
       }
-
-      // Pose and action
-      if (person.pose) {
-        personDesc.push(`${person.pose}`);
+      if (person.emotionalState) {
+        personDesc.push(`looking ${person.emotionalState}`);
       }
-      if (person.action) {
-        personDesc.push(`${person.action}`);
+      if (person.eyeContact) {
+        personDesc.push(`${person.eyeContact}`);
+      }
+
+      // Pose and body position
+      if (person.bodyPosture) {
+        personDesc.push(`${person.bodyPosture}`);
+      }
+      if (person.armPosition && person.armPosition !== "at sides") {
+        personDesc.push(`arms ${person.armPosition}`);
+      }
+      if (person.handDetails && person.handDetails !== "not visible") {
+        personDesc.push(`${person.handDetails}`);
       }
 
       parts.push(personDesc.join(", "));
     });
   }
 
-  // Handle objects (for non-people images)
-  if (analysis.totalObjects > 0 && analysis.objects?.length > 0 && analysis.totalPeople === 0) {
-    parts.push(`EXACTLY ${analysis.totalObjects} ${analysis.totalObjects === 1 ? "object" : "objects"}`);
+  // Subject interaction
+  if (analysis.subjectInteraction) {
+    parts.push(`Interaction: ${analysis.subjectInteraction}`);
+  }
 
-    analysis.objects.forEach((obj) => {
-      const objDesc = `${obj.color} ${obj.name} (${obj.size}, ${obj.position})${obj.details ? ` - ${obj.details}` : ""}`;
-      parts.push(objDesc);
+  // Handle animals
+  if (analysis.totalAnimals > 0 && analysis.animals?.length > 0) {
+    parts.push(`EXACTLY ${analysis.totalAnimals} ${analysis.totalAnimals === 1 ? "animal" : "animals"}`);
+
+    analysis.animals.forEach((animal) => {
+      const animalDesc: string[] = [];
+      if (animal.color) animalDesc.push(animal.color);
+      if (animal.breed) animalDesc.push(animal.breed);
+      if (animal.species) animalDesc.push(animal.species);
+      if (animal.size) animalDesc.push(`(${animal.size})`);
+      if (animal.pose) animalDesc.push(animal.pose);
+      if (animal.expression) animalDesc.push(`looking ${animal.expression}`);
+      if (animal.accessories && animal.accessories !== "none") {
+        animalDesc.push(`wearing ${animal.accessories}`);
+      }
+      if (animal.notableFeatures) animalDesc.push(`- ${animal.notableFeatures}`);
+      parts.push(animalDesc.join(" "));
     });
   }
 
-  // Handle animals/mixed
-  if (analysis.imageType === "animal" || analysis.imageType === "mixed") {
-    if (analysis.objects?.length > 0) {
-      analysis.objects.forEach((obj) => {
-        parts.push(`${obj.color} ${obj.name} - ${obj.details}`);
-      });
+  // Handle objects
+  if (analysis.totalObjects > 0 && analysis.objects?.length > 0) {
+    if (analysis.totalPeople === 0 && analysis.totalAnimals === 0) {
+      parts.push(`EXACTLY ${analysis.totalObjects} ${analysis.totalObjects === 1 ? "object" : "objects"}`);
+    } else {
+      parts.push(`Also visible: ${analysis.totalObjects} ${analysis.totalObjects === 1 ? "object" : "objects"}`);
+    }
+
+    analysis.objects.forEach((obj) => {
+      const objParts: string[] = [];
+      if (obj.color) objParts.push(obj.color);
+      if (obj.material) objParts.push(obj.material);
+      if (obj.name) objParts.push(obj.name);
+      if (obj.size) objParts.push(`(${obj.size})`);
+      if (obj.position) objParts.push(`at ${obj.position}`);
+      if (obj.details) objParts.push(`- ${obj.details}`);
+      parts.push(objParts.join(" "));
+    });
+  }
+
+  // Photo composition
+  if (analysis.photoComposition) {
+    const comp = analysis.photoComposition;
+    const compParts: string[] = [];
+    if (comp.shotType) compParts.push(comp.shotType);
+    if (comp.angle) compParts.push(comp.angle);
+    if (comp.framing) compParts.push(comp.framing);
+    if (compParts.length > 0) {
+      parts.push(`Shot: ${compParts.join(", ")}`);
     }
   }
 
-  // Arrangement
-  if (analysis.arrangement) {
-    parts.push(`Arrangement: ${analysis.arrangement}`);
+  // BACKGROUND (30% - simplified)
+  if (analysis.background) {
+    const bg = analysis.background;
+    const bgParts: string[] = [];
+
+    if (bg.setting) bgParts.push(bg.setting);
+    if (bg.indoorOutdoor) bgParts.push(`(${bg.indoorOutdoor})`);
+    if (bg.mainElements) bgParts.push(bg.mainElements);
+    if (bg.dominantColors) bgParts.push(`colors: ${bg.dominantColors}`);
+    if (bg.lighting) bgParts.push(`${bg.lighting} lighting`);
+    if (bg.atmosphere) bgParts.push(`${bg.atmosphere} atmosphere`);
+
+    if (bgParts.length > 0) {
+      parts.push(`BACKGROUND: ${bgParts.join(", ")}`);
+    }
   }
 
-  // Background (important for context)
-  if (analysis.background) {
-    parts.push(`Background: ${analysis.background}`);
+  // Dominant colors
+  if (analysis.dominantColors && analysis.dominantColors.length > 0) {
+    parts.push(`Colors: ${analysis.dominantColors.join(", ")}`);
   }
 
   // Mood
@@ -324,33 +597,38 @@ async function analyzeImageWithVisionFallback(
               type: "text",
               text: `Describe this image in EXTREME DETAIL for an artist to recreate as a ${targetStyle} illustration.
 
-REQUIRED FORMAT:
-"[COUNT] people/objects: [DETAILED description of EACH subject]"
+REQUIRED FORMAT - Start with exact count:
+"[EXACT COUNT] people/animals/objects: [DETAILED description]"
 
-FOR EACH PERSON INCLUDE:
-- Gender (male/female)
-- Age (child/teen/adult/senior)
-- Skin tone (be specific: dark brown, medium brown, light brown, tan, fair, pale)
-- Hair color and style
-- Exact clothing colors and types
-- Facial expression and emotion
-- Pose and what they're doing
-- Position (left/center/right)
+FOR EACH PERSON, DESCRIBE ALL:
+1. BASICS: Gender, age, ethnicity appearance, skin tone (be specific: dark brown, medium brown, light brown, tan, olive, fair, pale)
+2. FACE: Shape, expression, emotion, eye color
+3. HAIR: Color, length, style (straight/curly/wavy), any specific styling
+4. ACCESSORIES (CRITICAL):
+   - Headwear: caps, hats, beanies, headbands, hijab, etc.
+   - Eyewear: glasses, sunglasses (include frame color/style)
+   - Jewelry: necklaces, earrings, bracelets, watches, rings
+   - Other: bags, scarves, ties
+5. CLOTHING (EXACT COLORS):
+   - Top: "[exact color] [type]" e.g., "navy blue polo shirt with white collar"
+   - Bottom: "[exact color] [type]" e.g., "light blue denim jeans"
+   - Footwear: if visible
+6. BODY: Type, pose, action
+7. POSITION: Where in frame (left/center/right)
 
 FOR OBJECTS/ANIMALS:
-- Exact colors
-- Size
-- Position
-- Details
+- Type, exact colors, size, material, position, notable details
 
-ALSO DESCRIBE:
-- Background setting
-- Overall mood
+BACKGROUND (50% importance):
+- Setting (indoor/outdoor, specific location)
+- Colors, furniture, objects visible
+- Nature elements (trees, sky, water)
+- Lighting and atmosphere
 
 EXAMPLE:
-"1 person: Female young adult with medium brown skin, long wavy black hair, warm smile, wearing bright red blouse and blue jeans, standing with arms crossed, looking at camera. Background: outdoor park with green trees, sunny day. Mood: cheerful and confident."
+"1 person: Male adult with dark brown skin, oval face, short black curly hair, wearing black Ray-Ban sunglasses, gold stud earrings, navy blue Nike cap worn backwards, white Nike t-shirt with red swoosh logo, black jogger pants, white Air Jordan sneakers. Standing with arms crossed, confident smile, looking at camera. Background: urban street with graffiti wall (red, blue, yellow), sunny day. Mood: cool and confident."
 
-Be ACCURATE about the count. If 1 person, say 1 person. If 3 people, say 3 people.`,
+COUNT CAREFULLY. If 1 person = say "1 person". If 3 people = say "3 people".`,
             },
             {
               type: "image_url",
@@ -362,7 +640,7 @@ Be ACCURATE about the count. If 1 person, say 1 person. If 3 people, say 3 peopl
           ],
         },
       ],
-      max_tokens: 800,
+      max_tokens: 1200,
     });
 
     const description = response.choices[0]?.message?.content;
