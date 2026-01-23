@@ -20,24 +20,19 @@ export default function ImageUpload({
     setIsLoading(true);
 
     try {
-      // Load the image
-      const imageUrl = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => resolve(e.target?.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
+      // Create object URL for the file (more reliable than FileReader on iOS)
+      const objectUrl = URL.createObjectURL(file);
 
-      // Create an image element to get dimensions
+      // Create an image element to load and get dimensions
       const img = new Image();
       await new Promise<void>((resolve, reject) => {
         img.onload = () => resolve();
-        img.onerror = reject;
-        img.src = imageUrl;
+        img.onerror = () => reject(new Error("Failed to load image"));
+        img.src = objectUrl;
       });
 
-      // Resize if larger than 2048px (to optimize for API)
-      const MAX_SIZE = 2048;
+      // Resize if larger than 1024px (optimized for API and faster upload)
+      const MAX_SIZE = 1024;
       let { width, height } = img;
 
       if (width > MAX_SIZE || height > MAX_SIZE) {
@@ -56,13 +51,25 @@ export default function ImageUpload({
         throw new Error("Failed to get canvas context");
       }
 
+      // Draw image on canvas (this converts HEIC/HEIF to standard format)
       ctx.drawImage(img, 0, 0, width, height);
 
-      // Convert to PNG (required by OpenAI variations API)
-      const resizedImage = canvas.toDataURL("image/png", 0.9);
-      onImageUpload(resizedImage);
-    } catch {
-      alert("Failed to process image");
+      // Clean up object URL
+      URL.revokeObjectURL(objectUrl);
+
+      // Convert to JPEG (smaller file size, more compatible)
+      // Use quality 0.8 for good balance of size and quality
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.8);
+
+      // Validate the data URL format
+      if (!dataUrl || !dataUrl.startsWith("data:image/")) {
+        throw new Error("Failed to convert image");
+      }
+
+      onImageUpload(dataUrl);
+    } catch (error) {
+      console.error("Image processing error:", error);
+      alert("Failed to process image. Please try a different image.");
     } finally {
       setIsLoading(false);
     }

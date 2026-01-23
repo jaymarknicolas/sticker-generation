@@ -319,9 +319,12 @@ export function buildStickerPrompt(params: PromptBuilderParams): string {
   // 6. Quality
   promptParts.push("high quality, detailed, professional");
 
-  // 7. Background
+  // 7. No text
+  promptParts.push("no text, no words, no letters");
+
+  // 8. Background
   if (includeSticker) {
-    promptParts.push("on transparent background");
+    promptParts.push("clean sticker edges");
   }
 
   // Build final prompt
@@ -344,17 +347,28 @@ export function getNegativePrompt(style: StyleKey | string): string {
     );
 
   const baseNegative = [
+    "text",
+    "words",
+    "letters",
+    "numbers",
+    "writing",
+    "labels",
+    "captions",
+    "watermark",
+    "signature",
+    "logo",
     "blurry",
     "low quality",
     "distorted",
-    "watermark",
-    "text",
     "ugly",
     "bad anatomy",
     "extra limbs",
+    "extra people",
+    "extra faces",
+    "crowd",
     "deformed",
-    "cropped",
-    "out of frame",
+    "disfigured",
+    "mutated",
   ];
 
   const styleNegative = styleConfig?.negativePrompt

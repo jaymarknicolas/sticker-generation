@@ -52,6 +52,15 @@ export default function DesignPicker({
     (d) => d.id === selectedDesign,
   );
 
+  // Generate unique filename with style and timestamp
+  const generateFilename = () => {
+    const style = selectedDesignData?.style || "sticker";
+    const cleanStyle = style.toLowerCase().replace(/[^a-z0-9]/g, "-");
+    const timestamp = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    const uniqueId = Math.random().toString(36).substring(2, 8); // 6 char random string
+    return `synthetik-${cleanStyle}-${timestamp}-${uniqueId}.png`;
+  };
+
   const handleDownload = async () => {
     if (!selectedDesignData || isDownloading) return;
 
@@ -65,7 +74,7 @@ export default function DesignPicker({
 
         const a = document.createElement("a");
         a.href = downloadUrl;
-        a.download = `synthetik-sticker-${selectedDesign}.png`;
+        a.download = generateFilename();
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -123,7 +132,7 @@ export default function DesignPicker({
           const downloadUrl = URL.createObjectURL(blob);
           const a = document.createElement("a");
           a.href = downloadUrl;
-          a.download = `synthetik-sticker-${selectedDesign}.png`;
+          a.download = generateFilename();
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
@@ -150,7 +159,7 @@ export default function DesignPicker({
           const downloadUrl = URL.createObjectURL(blob);
           const a = document.createElement("a");
           a.href = downloadUrl;
-          a.download = `synthetik-sticker-${selectedDesign}.png`;
+          a.download = generateFilename();
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
@@ -197,7 +206,7 @@ export default function DesignPicker({
         return;
       }
 
-      const file = new File([blob], "synthetik-sticker.png", {
+      const file = new File([blob], generateFilename(), {
         type: "image/png",
       });
 
@@ -223,7 +232,7 @@ export default function DesignPicker({
         const downloadUrl = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = downloadUrl;
-        a.download = "synthetik-sticker.png";
+        a.download = generateFilename();
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

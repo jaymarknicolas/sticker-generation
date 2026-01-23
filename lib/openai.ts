@@ -32,10 +32,138 @@ export interface GeneratedImage {
 }
 
 /**
- * Analyze an image using GPT-4 Vision to extract key details for sticker recreation
+ * Clean and validate base64 image data for API compatibility
+ */
+function cleanBase64Image(imageBase64: string): string {
+  // If it's already a proper data URL, validate and return
+  if (imageBase64.startsWith("data:image/")) {
+    // Remove any whitespace/newlines that might exist (iOS issue)
+    const parts = imageBase64.split(",");
+    if (parts.length === 2) {
+      const cleanedBase64 = parts[1].replace(/\s/g, "");
+      return `${parts[0]},${cleanedBase64}`;
+    }
+  }
+
+  // If it's raw base64, add the data URL prefix
+  const cleanedBase64 = imageBase64.replace(/\s/g, "");
+  return `data:image/jpeg;base64,${cleanedBase64}`;
+}
+
+/**
+ * Structure for parsed image analysis
+ */
+interface ImageAnalysis {
+  totalPeople: number;
+  people: Array<{
+    position: string;
+    age: string;
+    skinTone: string;
+    hair: string;
+    clothing: string;
+  }>;
+  arrangement: string;
+}
+
+/**
+ * Analyze an image using GPT-4 Vision to extract EXACT visual details for recreation
  */
 async function analyzeImageWithVision(
   imageBase64: string,
+  targetStyle: string,
+): Promise<string> {
+  const openai = getOpenAIClient();
+  const cleanedImage = cleanBase64Image(imageBase64);
+
+  try {
+    // First, get a structured JSON analysis
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You analyze photos for artists creating stylized illustrations. Output valid JSON only. Describe what you see accurately - count people carefully, note skin tones, hair, and clothing colors precisely. This is for artwork recreation, not identification.`,
+        },
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: `Analyze this photo and return JSON with this exact structure:
+{
+  "totalPeople": <number>,
+  "people": [
+    {
+      "position": "left/center/right",
+      "age": "child/teen/adult/elderly",
+      "skinTone": "dark brown/medium brown/light brown/tan/fair/pale",
+      "hair": "color and style",
+      "clothing": "exact colors and items"
+    }
+  ],
+  "arrangement": "how they are posed together"
+}
+
+Count heads carefully. Describe each person you see. Be specific about skin tones and colors.`,
+            },
+            {
+              type: "image_url",
+              image_url: {
+                url: cleanedImage,
+                detail: "high",
+              },
+            },
+          ],
+        },
+      ],
+      max_tokens: 600,
+      response_format: { type: "json_object" },
+    });
+
+    const jsonResponse = response.choices[0]?.message?.content;
+    console.log("Raw Vision JSON response:", jsonResponse);
+
+    if (!jsonResponse) {
+      throw new Error("Failed to analyze image");
+    }
+
+    // Parse the JSON
+    let analysis: ImageAnalysis;
+    try {
+      analysis = JSON.parse(jsonResponse);
+    } catch {
+      console.error("Failed to parse Vision JSON, falling back to text");
+      return await analyzeImageWithVisionFallback(cleanedImage, targetStyle);
+    }
+
+    // Validate we got actual people data
+    if (!analysis.totalPeople || analysis.totalPeople < 1 || !analysis.people?.length) {
+      console.log("Vision returned no people, using fallback");
+      return await analyzeImageWithVisionFallback(cleanedImage, targetStyle);
+    }
+
+    // Build a natural language description from the structured data
+    const peopleDescriptions = analysis.people.map((person, index) => {
+      return `${person.position?.toUpperCase() || `Person ${index + 1}`}: ${person.age} with ${person.skinTone} skin, ${person.hair}, wearing ${person.clothing}`;
+    }).join(". ");
+
+    const description = `${analysis.totalPeople} people total. ${peopleDescriptions}. ${analysis.arrangement || "Posed together"}`;
+
+    console.log("Constructed description:", description);
+    return description;
+
+  } catch (error) {
+    console.error("GPT-4 Vision analysis error:", error);
+    // Try fallback method
+    return await analyzeImageWithVisionFallback(cleanedImage, targetStyle);
+  }
+}
+
+/**
+ * Fallback text-based analysis if JSON fails
+ */
+async function analyzeImageWithVisionFallback(
+  cleanedImage: string,
   targetStyle: string,
 ): Promise<string> {
   const openai = getOpenAIClient();
@@ -49,39 +177,48 @@ async function analyzeImageWithVision(
           content: [
             {
               type: "text",
-              text: `I want to recreate this image as a ${targetStyle} style sticker/illustration.
+              text: `You are helping an artist recreate this photo as a ${targetStyle} illustration.
 
-Analyze the image and describe ONLY the key elements I need to recreate:
-1. Main subject(s): their appearance, pose, expression, clothing colors
-2. The relationship/interaction between subjects (if multiple people)
-3. Key identifying features that make this image unique
+IMPORTANT: Count the people carefully and describe each one.
 
-Keep your description to 1-2 sentences. Focus on WHAT to draw, not HOW. Do not mention image quality, photography, or technical aspects.
+Answer in this EXACT format:
+"[NUMBER] people: [describe each person with their skin tone, hair color/style, and clothing colors]. [How they are arranged]."
 
-Example good response: "A young couple in cream sweaters and blue jeans, facing each other intimately with the woman's hand on the man's chest, both smiling warmly."`,
+Example: "3 people: Adult man (dark brown skin, short black hair, navy blue shirt) on left, adult woman (dark brown skin, long curly black hair, cream blouse) in center, young girl (dark brown skin, curly hair in puffs, striped dress) on right. Family sitting close together, smiling."
+
+Be accurate about the count and skin tones.`,
             },
             {
               type: "image_url",
               image_url: {
-                url: imageBase64,
+                url: cleanedImage,
                 detail: "high",
               },
             },
           ],
         },
       ],
-      max_tokens: 200,
+      max_tokens: 400,
     });
 
     const description = response.choices[0]?.message?.content;
+    console.log("Fallback Vision response:", description);
+
     if (!description) {
-      throw new Error("Failed to analyze image");
+      return "a group of people together";
+    }
+
+    // Check for refusal
+    const lowerDesc = description.toLowerCase();
+    if (lowerDesc.includes("i can't") || lowerDesc.includes("i cannot") ||
+        lowerDesc.includes("sorry") || lowerDesc.includes("not able to")) {
+      return "a group of people in casual attire, smiling together";
     }
 
     return description.trim();
   } catch (error) {
-    console.error("GPT-4 Vision analysis error:", error);
-    throw new Error("Failed to analyze the uploaded image. Please try again.");
+    console.error("Fallback Vision analysis error:", error);
+    return "a group of people together";
   }
 }
 
@@ -113,21 +250,51 @@ export async function generateImage(
     // If an image is provided, analyze it and create a style-focused prompt
     if (imageBase64) {
       console.log(`Analyzing uploaded image for ${styleName} style...`);
+      const cleanedImage = cleanBase64Image(imageBase64);
       const imageDescription = await analyzeImageWithVision(
-        imageBase64,
+        cleanedImage,
         styleName,
       );
       console.log("Image description:", imageDescription);
 
-      // Structure the prompt to STRONGLY emphasize the style
-      // Put the style instruction FIRST and make it dominant
-      finalPrompt = `Create a ${styleName} style sticker illustration of: ${imageDescription}
+      // Extract the people count from description if possible
+      const countMatch = imageDescription.match(/(\d+)\s*people/i);
+      const peopleCount = countMatch ? countMatch[1] : "";
 
-IMPORTANT STYLE REQUIREMENTS:
-${prompt}
+      // Build a very direct, no-nonsense prompt for DALL-E 3
+      // DALL-E 3 tends to rewrite prompts, so we need to be extremely explicit
 
-The final image MUST be unmistakably in ${styleName} style. This is a sticker design with clean edges suitable for printing.`;
+      // If we found a people count, emphasize it heavily
+      if (peopleCount) {
+        const count = parseInt(peopleCount);
+        const countWord = count === 1 ? "one person" : count === 2 ? "two people" : count === 3 ? "three people" : count === 4 ? "four people" : `${count} people`;
 
+        // Create a very direct prompt that DALL-E 3 is more likely to follow
+        finalPrompt = `A ${styleName} style sticker of ${countWord}:
+
+${imageDescription}
+
+Important details that MUST be included:
+- Show exactly ${countWord} (not more, not less)
+- Preserve all skin tones exactly as described
+- Preserve all clothing colors exactly as described
+- Preserve all hair styles and colors exactly as described
+- Keep the same arrangement and poses
+- ${styleName} art style with clean sticker edges
+- Simple background
+- Absolutely no text, words, letters, or writing`;
+      } else {
+        // No people count found, use simpler prompt
+        finalPrompt = `A ${styleName} style sticker illustration:
+
+${imageDescription}
+
+Style: ${styleName} art style
+Format: Clean sticker with defined edges, simple background
+Important: No text, no words, no letters anywhere in the image`;
+      }
+
+      console.log("Final prompt:", finalPrompt);
       console.log("Final prompt length:", finalPrompt.length);
     }
 
@@ -147,9 +314,11 @@ The final image MUST be unmistakably in ${styleName} style. This is a sticker de
       });
 
       if (response.data && response.data.length > 0) {
+        const revisedPrompt = response.data[0].revised_prompt;
+        console.log(`DALL-E revised prompt ${i + 1}:`, revisedPrompt);
         results.push({
           url: response.data[0].url || "",
-          revised_prompt: response.data[0].revised_prompt,
+          revised_prompt: revisedPrompt,
         });
       }
     }
