@@ -51,22 +51,47 @@ function cleanBase64Image(imageBase64: string): string {
 }
 
 /**
- * Structure for parsed image analysis
+ * Comprehensive structure for parsed image analysis
  */
+interface PersonDetail {
+  position: string;
+  gender: string;
+  age: string;
+  skinTone: string;
+  hairColor: string;
+  hairStyle: string;
+  facialExpression: string;
+  emotion: string;
+  pose: string;
+  action: string;
+  clothingTop: string;
+  clothingBottom: string;
+  accessories: string;
+  bodyType: string;
+}
+
+interface ObjectDetail {
+  name: string;
+  color: string;
+  size: string;
+  position: string;
+  details: string;
+}
+
 interface ImageAnalysis {
+  imageType: "people" | "objects" | "mixed" | "animal" | "scene";
   totalPeople: number;
-  people: Array<{
-    position: string;
-    age: string;
-    skinTone: string;
-    hair: string;
-    clothing: string;
-  }>;
+  totalObjects: number;
+  people: PersonDetail[];
+  objects: ObjectDetail[];
+  background: string;
+  lighting: string;
+  overallMood: string;
   arrangement: string;
 }
 
 /**
- * Analyze an image using GPT-4 Vision to extract EXACT visual details for recreation
+ * Analyze an image using GPT-4 Vision to extract COMPREHENSIVE visual details
  */
 async function analyzeImageWithVision(
   imageBase64: string,
@@ -76,35 +101,60 @@ async function analyzeImageWithVision(
   const cleanedImage = cleanBase64Image(imageBase64);
 
   try {
-    // First, get a structured JSON analysis
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
         {
           role: "system",
-          content: `You analyze photos for artists creating stylized illustrations. Output valid JSON only. Describe what you see accurately - count people carefully, note skin tones, hair, and clothing colors precisely. This is for artwork recreation, not identification.`,
+          content: `You are an expert visual analyst for artists. Analyze images with extreme precision and detail. Your descriptions will be used to recreate the image as stylized artwork. Be accurate about counts, colors, positions, and all visual details. Output valid JSON only.`,
         },
         {
           role: "user",
           content: [
             {
               type: "text",
-              text: `Analyze this photo and return JSON with this exact structure:
+              text: `Analyze this image in EXTREME DETAIL. Return JSON with this structure:
+
 {
-  "totalPeople": <number>,
+  "imageType": "people/objects/mixed/animal/scene",
+  "totalPeople": <exact number, 0 if none>,
+  "totalObjects": <number of main objects if no people>,
   "people": [
     {
-      "position": "left/center/right",
-      "age": "child/teen/adult/elderly",
-      "skinTone": "dark brown/medium brown/light brown/tan/fair/pale",
-      "hair": "color and style",
-      "clothing": "exact colors and items"
+      "position": "left/center/right/front/back",
+      "gender": "male/female/unclear",
+      "age": "baby/toddler/child/teenager/young adult/adult/middle-aged/senior",
+      "skinTone": "very dark brown/dark brown/medium brown/light brown/tan/olive/fair/pale/pink",
+      "hairColor": "black/dark brown/brown/light brown/blonde/red/gray/white/dyed color",
+      "hairStyle": "short/medium/long, straight/wavy/curly/coily, specific style like ponytail/braids/bun/afro",
+      "facialExpression": "smiling/laughing/neutral/serious/surprised/etc",
+      "emotion": "happy/joyful/content/excited/calm/etc",
+      "pose": "standing/sitting/kneeling/leaning/hugging/etc",
+      "action": "what they are doing - looking at camera/talking/waving/holding something/etc",
+      "clothingTop": "exact color and type - e.g., navy blue polo shirt, white t-shirt with red stripes",
+      "clothingBottom": "exact color and type - e.g., blue jeans, black shorts, pink skirt",
+      "accessories": "glasses/hat/jewelry/watch/none",
+      "bodyType": "slim/average/athletic/heavy"
     }
   ],
-  "arrangement": "how they are posed together"
+  "objects": [
+    {
+      "name": "object name",
+      "color": "exact colors",
+      "size": "small/medium/large relative to image",
+      "position": "where in image",
+      "details": "specific details"
+    }
+  ],
+  "background": "detailed description of background - indoor/outdoor, colors, setting",
+  "lighting": "bright/soft/natural/artificial/warm/cool",
+  "overallMood": "cheerful/serious/romantic/playful/professional",
+  "arrangement": "how subjects are positioned relative to each other"
 }
 
-Count heads carefully. Describe each person you see. Be specific about skin tones and colors.`,
+COUNT CAREFULLY. If 1 person, totalPeople=1. If 3 people, totalPeople=3.
+Be SPECIFIC about skin tones - they matter for accurate recreation.
+Describe EXACT clothing colors (not just "shirt" but "light blue denim shirt").`,
             },
             {
               type: "image_url",
@@ -116,7 +166,7 @@ Count heads carefully. Describe each person you see. Be specific about skin tone
           ],
         },
       ],
-      max_tokens: 600,
+      max_tokens: 1200,
       response_format: { type: "json_object" },
     });
 
@@ -127,7 +177,6 @@ Count heads carefully. Describe each person you see. Be specific about skin tone
       throw new Error("Failed to analyze image");
     }
 
-    // Parse the JSON
     let analysis: ImageAnalysis;
     try {
       analysis = JSON.parse(jsonResponse);
@@ -136,27 +185,123 @@ Count heads carefully. Describe each person you see. Be specific about skin tone
       return await analyzeImageWithVisionFallback(cleanedImage, targetStyle);
     }
 
-    // Validate we got actual people data
-    if (!analysis.totalPeople || analysis.totalPeople < 1 || !analysis.people?.length) {
-      console.log("Vision returned no people, using fallback");
-      return await analyzeImageWithVisionFallback(cleanedImage, targetStyle);
-    }
-
-    // Build a natural language description from the structured data
-    const peopleDescriptions = analysis.people.map((person, index) => {
-      return `${person.position?.toUpperCase() || `Person ${index + 1}`}: ${person.age} with ${person.skinTone} skin, ${person.hair}, wearing ${person.clothing}`;
-    }).join(". ");
-
-    const description = `${analysis.totalPeople} people total. ${peopleDescriptions}. ${analysis.arrangement || "Posed together"}`;
-
-    console.log("Constructed description:", description);
+    // Build comprehensive natural language description
+    const description = buildDetailedDescription(analysis);
+    console.log("Constructed detailed description:", description);
     return description;
 
   } catch (error) {
     console.error("GPT-4 Vision analysis error:", error);
-    // Try fallback method
     return await analyzeImageWithVisionFallback(cleanedImage, targetStyle);
   }
+}
+
+/**
+ * Build a detailed natural language description from the analysis
+ */
+function buildDetailedDescription(analysis: ImageAnalysis): string {
+  const parts: string[] = [];
+
+  // Handle people
+  if (analysis.totalPeople > 0 && analysis.people?.length > 0) {
+    parts.push(`EXACTLY ${analysis.totalPeople} ${analysis.totalPeople === 1 ? "person" : "people"}`);
+
+    analysis.people.forEach((person, index) => {
+      const personDesc: string[] = [];
+
+      // Position
+      const pos = person.position || `person ${index + 1}`;
+      personDesc.push(`[${pos.toUpperCase()}]:`);
+
+      // Gender and age
+      if (person.gender && person.gender !== "unclear") {
+        personDesc.push(`${person.gender}`);
+      }
+      if (person.age) {
+        personDesc.push(`${person.age}`);
+      }
+
+      // Skin tone (critical)
+      if (person.skinTone) {
+        personDesc.push(`with ${person.skinTone} skin`);
+      }
+
+      // Hair
+      if (person.hairColor || person.hairStyle) {
+        const hair = [person.hairColor, person.hairStyle].filter(Boolean).join(" ");
+        personDesc.push(`${hair} hair`);
+      }
+
+      // Body type
+      if (person.bodyType && person.bodyType !== "average") {
+        personDesc.push(`${person.bodyType} build`);
+      }
+
+      // Clothing (critical)
+      const clothing: string[] = [];
+      if (person.clothingTop) clothing.push(person.clothingTop);
+      if (person.clothingBottom) clothing.push(person.clothingBottom);
+      if (clothing.length > 0) {
+        personDesc.push(`wearing ${clothing.join(" and ")}`);
+      }
+
+      // Accessories
+      if (person.accessories && person.accessories !== "none") {
+        personDesc.push(`with ${person.accessories}`);
+      }
+
+      // Expression and emotion
+      if (person.facialExpression) {
+        personDesc.push(`${person.facialExpression}`);
+      }
+
+      // Pose and action
+      if (person.pose) {
+        personDesc.push(`${person.pose}`);
+      }
+      if (person.action) {
+        personDesc.push(`${person.action}`);
+      }
+
+      parts.push(personDesc.join(", "));
+    });
+  }
+
+  // Handle objects (for non-people images)
+  if (analysis.totalObjects > 0 && analysis.objects?.length > 0 && analysis.totalPeople === 0) {
+    parts.push(`EXACTLY ${analysis.totalObjects} ${analysis.totalObjects === 1 ? "object" : "objects"}`);
+
+    analysis.objects.forEach((obj) => {
+      const objDesc = `${obj.color} ${obj.name} (${obj.size}, ${obj.position})${obj.details ? ` - ${obj.details}` : ""}`;
+      parts.push(objDesc);
+    });
+  }
+
+  // Handle animals/mixed
+  if (analysis.imageType === "animal" || analysis.imageType === "mixed") {
+    if (analysis.objects?.length > 0) {
+      analysis.objects.forEach((obj) => {
+        parts.push(`${obj.color} ${obj.name} - ${obj.details}`);
+      });
+    }
+  }
+
+  // Arrangement
+  if (analysis.arrangement) {
+    parts.push(`Arrangement: ${analysis.arrangement}`);
+  }
+
+  // Background (important for context)
+  if (analysis.background) {
+    parts.push(`Background: ${analysis.background}`);
+  }
+
+  // Mood
+  if (analysis.overallMood) {
+    parts.push(`Mood: ${analysis.overallMood}`);
+  }
+
+  return parts.join(". ");
 }
 
 /**
@@ -177,16 +322,35 @@ async function analyzeImageWithVisionFallback(
           content: [
             {
               type: "text",
-              text: `You are helping an artist recreate this photo as a ${targetStyle} illustration.
+              text: `Describe this image in EXTREME DETAIL for an artist to recreate as a ${targetStyle} illustration.
 
-IMPORTANT: Count the people carefully and describe each one.
+REQUIRED FORMAT:
+"[COUNT] people/objects: [DETAILED description of EACH subject]"
 
-Answer in this EXACT format:
-"[NUMBER] people: [describe each person with their skin tone, hair color/style, and clothing colors]. [How they are arranged]."
+FOR EACH PERSON INCLUDE:
+- Gender (male/female)
+- Age (child/teen/adult/senior)
+- Skin tone (be specific: dark brown, medium brown, light brown, tan, fair, pale)
+- Hair color and style
+- Exact clothing colors and types
+- Facial expression and emotion
+- Pose and what they're doing
+- Position (left/center/right)
 
-Example: "3 people: Adult man (dark brown skin, short black hair, navy blue shirt) on left, adult woman (dark brown skin, long curly black hair, cream blouse) in center, young girl (dark brown skin, curly hair in puffs, striped dress) on right. Family sitting close together, smiling."
+FOR OBJECTS/ANIMALS:
+- Exact colors
+- Size
+- Position
+- Details
 
-Be accurate about the count and skin tones.`,
+ALSO DESCRIBE:
+- Background setting
+- Overall mood
+
+EXAMPLE:
+"1 person: Female young adult with medium brown skin, long wavy black hair, warm smile, wearing bright red blouse and blue jeans, standing with arms crossed, looking at camera. Background: outdoor park with green trees, sunny day. Mood: cheerful and confident."
+
+Be ACCURATE about the count. If 1 person, say 1 person. If 3 people, say 3 people.`,
             },
             {
               type: "image_url",
@@ -198,27 +362,26 @@ Be accurate about the count and skin tones.`,
           ],
         },
       ],
-      max_tokens: 400,
+      max_tokens: 800,
     });
 
     const description = response.choices[0]?.message?.content;
     console.log("Fallback Vision response:", description);
 
     if (!description) {
-      return "a group of people together";
+      return "a subject in a simple setting";
     }
 
-    // Check for refusal
     const lowerDesc = description.toLowerCase();
     if (lowerDesc.includes("i can't") || lowerDesc.includes("i cannot") ||
         lowerDesc.includes("sorry") || lowerDesc.includes("not able to")) {
-      return "a group of people in casual attire, smiling together";
+      return "a person with warm expression in casual setting";
     }
 
     return description.trim();
   } catch (error) {
     console.error("Fallback Vision analysis error:", error);
-    return "a group of people together";
+    return "a subject in a casual setting";
   }
 }
 
@@ -257,41 +420,77 @@ export async function generateImage(
       );
       console.log("Image description:", imageDescription);
 
-      // Extract the people count from description if possible
-      const countMatch = imageDescription.match(/(\d+)\s*people/i);
-      const peopleCount = countMatch ? countMatch[1] : "";
+      // Extract counts from description
+      const peopleMatch = imageDescription.match(/EXACTLY\s*(\d+)\s*(?:person|people)/i);
+      const objectMatch = imageDescription.match(/EXACTLY\s*(\d+)\s*(?:object|objects)/i);
 
-      // Build a very direct, no-nonsense prompt for DALL-E 3
-      // DALL-E 3 tends to rewrite prompts, so we need to be extremely explicit
+      const peopleCount = peopleMatch ? parseInt(peopleMatch[1]) : 0;
+      const objectCount = objectMatch ? parseInt(objectMatch[1]) : 0;
 
-      // If we found a people count, emphasize it heavily
-      if (peopleCount) {
-        const count = parseInt(peopleCount);
-        const countWord = count === 1 ? "one person" : count === 2 ? "two people" : count === 3 ? "three people" : count === 4 ? "four people" : `${count} people`;
+      // Convert number to word for emphasis
+      const numberToWord = (n: number, singular: string, plural: string): string => {
+        const words: Record<number, string> = {
+          1: "one", 2: "two", 3: "three", 4: "four", 5: "five",
+          6: "six", 7: "seven", 8: "eight", 9: "nine", 10: "ten"
+        };
+        const word = words[n] || String(n);
+        return `${word} ${n === 1 ? singular : plural}`;
+      };
 
-        // Create a very direct prompt that DALL-E 3 is more likely to follow
-        finalPrompt = `A ${styleName} style sticker of ${countWord}:
+      // Build comprehensive DALL-E prompt
+      if (peopleCount > 0) {
+        const countPhrase = numberToWord(peopleCount, "person", "people");
 
+        finalPrompt = `Create a ${styleName} style sticker illustration showing EXACTLY ${countPhrase}.
+
+DETAILED SUBJECT DESCRIPTION:
 ${imageDescription}
 
-Important details that MUST be included:
-- Show exactly ${countWord} (not more, not less)
-- Preserve all skin tones exactly as described
-- Preserve all clothing colors exactly as described
-- Preserve all hair styles and colors exactly as described
-- Keep the same arrangement and poses
-- ${styleName} art style with clean sticker edges
-- Simple background
-- Absolutely no text, words, letters, or writing`;
+CRITICAL REQUIREMENTS - MUST FOLLOW:
+1. NUMBER: Show EXACTLY ${countPhrase} - not ${peopleCount - 1}, not ${peopleCount + 1}, EXACTLY ${peopleCount}
+2. SKIN TONES: Match the exact skin tones described for each person
+3. GENDER: Match the gender of each person as described
+4. CLOTHING: Match exact clothing colors and types for each person
+5. HAIR: Match exact hair color, length, and style for each person
+6. POSES: Match the poses and actions described
+7. EXPRESSIONS: Match the facial expressions and emotions described
+8. ARRANGEMENT: Position people exactly as described (left/center/right)
+9. BACKGROUND: Include the background setting as described
+10. STYLE: ${styleName} artistic style with clean sticker edges
+
+ABSOLUTELY NO TEXT - No words, letters, numbers, labels, captions, watermarks, or any written content anywhere in the image.`;
+
+      } else if (objectCount > 0) {
+        const countPhrase = numberToWord(objectCount, "object", "objects");
+
+        finalPrompt = `Create a ${styleName} style sticker illustration showing EXACTLY ${countPhrase}.
+
+DETAILED SUBJECT DESCRIPTION:
+${imageDescription}
+
+CRITICAL REQUIREMENTS:
+1. NUMBER: Show EXACTLY ${countPhrase} as described
+2. COLORS: Match exact colors for each object
+3. DETAILS: Include all specific details mentioned
+4. ARRANGEMENT: Position objects as described
+5. BACKGROUND: Include background as described
+6. STYLE: ${styleName} artistic style with clean sticker edges
+
+ABSOLUTELY NO TEXT - No words, letters, numbers, or writing anywhere.`;
+
       } else {
-        // No people count found, use simpler prompt
-        finalPrompt = `A ${styleName} style sticker illustration:
+        // Fallback for scenes, animals, or unspecified
+        finalPrompt = `Create a ${styleName} style sticker illustration:
 
+DETAILED DESCRIPTION:
 ${imageDescription}
 
-Style: ${styleName} art style
-Format: Clean sticker with defined edges, simple background
-Important: No text, no words, no letters anywhere in the image`;
+REQUIREMENTS:
+- Match all visual details exactly as described
+- Match all colors exactly as described
+- Include background as described
+- ${styleName} artistic style with clean sticker edges
+- ABSOLUTELY NO TEXT, words, letters, or writing anywhere in the image`;
       }
 
       console.log("Final prompt:", finalPrompt);
