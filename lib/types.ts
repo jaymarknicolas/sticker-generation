@@ -5,6 +5,7 @@ export interface Style {
   name: string;
   type: string;
   image: string;
+  previewImage?: string;
   description?: string;
 }
 
@@ -23,6 +24,7 @@ export interface RecentStyle {
 export interface GeneratedDesign {
   id: number;
   url: string;
+  base64?: string; // Base64 data for direct download (avoids CORS issues)
   prompt?: string;
   style?: string;
   createdAt?: Date;

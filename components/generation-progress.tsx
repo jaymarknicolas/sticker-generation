@@ -50,9 +50,9 @@ export default function GenerationProgress({
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 py-8 sm:py-12 overflow-y-auto">
+      <div className="flex-1 flex flex-col items-center px-4 sm:px-6 py-6 sm:py-8 overflow-y-auto">
         {/* Circular Progress */}
-        <div className="relative w-48 sm:w-64 h-48 sm:h-64 mb-8 sm:mb-12 shrink-0">
+        <div className="relative w-40 sm:w-56 h-40 sm:h-56 mb-6 sm:mb-8 shrink-0">
           <svg
             className="w-full h-full transform -rotate-90"
             viewBox="0 0 200 200"
@@ -96,40 +96,36 @@ export default function GenerationProgress({
         </div>
 
         {/* Subtitle and Status */}
-        <div className="text-center max-w-sm mb-8 sm:mb-12">
-          <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">
+        <div className="text-center max-w-sm mb-4 sm:mb-6 shrink-0">
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
             {displayProgress >= 100
               ? "Your sticker is ready!"
               : "Creating your unique design..."}
           </h2>
-          <p className="text-sm sm:text-base text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             {statusText}
           </p>
         </div>
 
         {/* Generated Stickers Preview */}
-        <div className="flex gap-2 sm:gap-3 justify-center mb-8 sm:mb-12 flex-wrap">
-          {[0, 1, 2, 3, 4].map((index) => (
+        <div className="flex gap-2 justify-center mb-4 sm:mb-6 flex-wrap shrink-0">
+          {[0].map((index) => (
             <div
               key={index}
-              className={`w-16 sm:w-20 h-16 sm:h-20 rounded-2xl border-2 border-border flex items-center justify-center transition-all duration-300 ${
+              className={`w-14 sm:w-16 h-14 sm:h-16 rounded-xl border-2 border-border flex items-center justify-center transition-all duration-300 ${
                 index < generatedCount
                   ? "bg-linear-to-br from-primary to-secondary border-primary"
                   : "bg-muted/30"
               }`}
             >
               {index < generatedCount && (
-                <div className="text-xs sm:text-sm font-bold text-white text-center">
-                  {String.fromCharCode(65 + index)}
+                <div className="text-xs font-bold text-white text-center">
+                  ✓
                 </div>
               )}
               {index >= generatedCount && (
                 <div className="text-muted-foreground">
-                  {index === generatedCount ? (
-                    <Zap className="w-5 h-5 sm:w-6 sm:h-6 animate-pulse" />
-                  ) : (
-                    <div className="w-5 h-5 sm:w-6 sm:h-6 border-2 border-dashed border-muted-foreground/50 rounded" />
-                  )}
+                  <Zap className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" />
                 </div>
               )}
             </div>
@@ -137,35 +133,33 @@ export default function GenerationProgress({
         </div>
 
         {/* Pro Tip */}
-        <div className="w-full max-w-md bg-card border border-border rounded-2xl p-4 sm:p-6 mb-8 sm:mb-12">
-          <div className="flex gap-3 sm:gap-4">
-            <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary flex items-center justify-center shrink-0 mt-0.5">
-              <span className="text-white text-xs sm:text-sm">💡</span>
+        <div className="w-full max-w-sm bg-card border border-border rounded-xl p-3 sm:p-4 mb-4 sm:mb-6 shrink-0">
+          <div className="flex gap-3">
+            <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center shrink-0">
+              <span className="text-white text-xs">💡</span>
             </div>
-            <div className="flex-1">
-              <h3 className="font-bold text-foreground mb-2 text-sm sm:text-base">
+            <div className="flex-1 min-w-0">
+              <h3 className="font-bold text-foreground mb-1 text-sm">
                 Pro Tip
               </h3>
-              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                High-contrast images with clear subjects work best for AI
-                sticker generation. Try portraits or simple objects for the
-                sharpest results!
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                High-contrast images with clear subjects work best for sticker generation.
               </p>
             </div>
           </div>
         </div>
 
         {/* Overall Progress Bar */}
-        <div className="w-full max-w-md">
-          <div className="flex items-center justify-between mb-2">
+        <div className="w-full max-w-sm shrink-0">
+          <div className="flex items-center justify-between mb-1.5">
             <span className="text-xs font-semibold text-muted-foreground tracking-wide uppercase">
-              Overall Progress
+              Progress
             </span>
             <span className="text-xs font-semibold text-foreground">
               {displayProgress}%
             </span>
           </div>
-          <div className="w-full h-2 sm:h-3 bg-muted rounded-full overflow-hidden">
+          <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
             <div
               className="h-full bg-linear-to-r from-primary to-secondary rounded-full transition-all duration-300"
               style={{ width: `${displayProgress}%` }}

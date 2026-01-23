@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#f5f5f5"/>
+  <!-- Minimalist fox -->
+  <!-- Ears -->
+  <polygon points="60,80 80,40 100,80" fill="#FF6B35"/>
+  <polygon points="100,80 120,40 140,80" fill="#FF6B35"/>
+  <polygon points="70,75 80,55 90,75" fill="white"/>
+  <polygon points="110,75 120,55 130,75" fill="white"/>
+  <!-- Face -->
+  <circle cx="100" cy="110" r="45" fill="#FF6B35"/>
+  <!-- White face patch -->
+  <ellipse cx="100" cy="125" rx="30" ry="25" fill="white"/>
+  <!-- Eyes - simple dots -->
+  <circle cx="80" cy="100" r="5" fill="#333"/>
+  <circle cx="120" cy="100" r="5" fill="#333"/>
+  <!-- Nose -->
+  <circle cx="100" cy="120" r="6" fill="#333"/>
+  <!-- Simple whisker lines -->
+  <line x1="60" y1="115" x2="80" y2="118" stroke="#333" stroke-width="1.5"/>
+  <line x1="60" y1="125" x2="80" y2="125" stroke="#333" stroke-width="1.5"/>
+  <line x1="120" y1="118" x2="140" y2="115" stroke="#333" stroke-width="1.5"/>
+  <line x1="120" y1="125" x2="140" y2="125" stroke="#333" stroke-width="1.5"/>
+</svg>

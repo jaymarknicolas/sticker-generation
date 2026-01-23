@@ -20,6 +20,10 @@ export interface GenerateImageParams {
   width?: number;
   height?: number;
   numOutputs?: number;
+  aspectRatio?: string;
+  outputFormat?: "webp" | "png" | "jpg";
+  outputQuality?: number;
+  imageBase64?: string;
 }
 
 export interface GeneratedImage {
@@ -27,23 +31,98 @@ export interface GeneratedImage {
 }
 
 /**
- * Generate images using Replicate's FLUX model
- * Using black-forest-labs/flux-schnell for fast generation
+ * Generate images using Google's Nano Banana model (Gemini 2.5 image editing)
+ * This is Google's latest image generation/editing model on Replicate
  */
 export async function generateImage(
   params: GenerateImageParams
 ): Promise<GeneratedImage[]> {
   const {
     prompt,
-    width = 1024,
-    height = 1024,
+    negativePrompt,
+    aspectRatio = "1:1",
+    outputFormat = "webp",
+    outputQuality = 90,
+    numOutputs = 1,
+    imageBase64,
+  } = params;
+
+  const replicate = getReplicateClient();
+
+  try {
+    // Build input parameters for Google's Nano Banana model (Gemini 2.5)
+    const inputParams: Record<string, unknown> = {
+      prompt: prompt,
+      negative_prompt: negativePrompt || "blurry, low quality, distorted, watermark, text, ugly, bad anatomy, extra limbs, cropped, out of frame",
+      aspect_ratio: aspectRatio,
+      output_format: outputFormat,
+      output_quality: outputQuality,
+      number_of_images: numOutputs,
+      safety_tolerance: 2,
+    };
+
+    // Add reference image if provided (for image-to-image generation)
+    if (imageBase64) {
+      inputParams.image = imageBase64;
+    }
+
+    const output = await replicate.run(
+      "google/nano-banana",
+      {
+        input: inputParams,
+      }
+    );
+
+    // Handle different output formats from the model
+    if (Array.isArray(output)) {
+      return output.map((item) => {
+        // Handle if output is URL string or object with url property
+        if (typeof item === "string") {
+          return { url: item };
+        }
+        if (item && typeof item === "object" && "url" in item) {
+          return { url: String(item.url) };
+        }
+        return { url: String(item) };
+      });
+    }
+
+    // Handle single output
+    if (output && typeof output === "string") {
+      return [{ url: output }];
+    }
+
+    if (output && typeof output === "object" && "url" in output) {
+      return [{ url: String((output as { url: string }).url) }];
+    }
+
+    return [];
+  } catch (error) {
+    console.error("Replicate Nano Banana generation error:", error);
+
+    // Fallback to FLUX if Nano Banana fails
+    console.log("Falling back to FLUX Schnell model...");
+    return generateImageFlux(params);
+  }
+}
+
+/**
+ * Fallback: Generate images using FLUX Schnell
+ */
+async function generateImageFlux(
+  params: GenerateImageParams
+): Promise<GeneratedImage[]> {
+  const {
+    prompt,
+    aspectRatio = "1:1",
+    outputFormat = "webp",
+    outputQuality = 90,
     numOutputs = 1,
   } = params;
 
   const replicate = getReplicateClient();
 
   try {
-    // Using FLUX Schnell for fast, high-quality image generation
     const output = await replicate.run(
       "black-forest-labs/flux-schnell",
       {
@@ -51,21 +130,20 @@ export async function generateImage(
           prompt: prompt,
           go_fast: true,
           num_outputs: numOutputs,
-          aspect_ratio: "1:1",
-          output_format: "webp",
-          output_quality: 90,
+          aspect_ratio: aspectRatio,
+          output_format: outputFormat,
+          output_quality: outputQuality,
         },
       }
     );
 
-    // Output is an array of URLs
     if (Array.isArray(output)) {
       return output.map((url) => ({ url: String(url) }));
     }
 
     return [];
   } catch (error) {
-    console.error("Replicate image generation error:", error);
+    console.error("Replicate FLUX generation error:", error);
     throw error;
   }
 }
@@ -78,7 +156,7 @@ export async function generateImageSDXL(
 ): Promise<GeneratedImage[]> {
   const {
     prompt,
-    negativePrompt = "blurry, low quality, distorted, ugly",
+    negativePrompt = "blurry, low quality, distorted, ugly, watermark, text",
     width = 1024,
     height = 1024,
     numOutputs = 1,

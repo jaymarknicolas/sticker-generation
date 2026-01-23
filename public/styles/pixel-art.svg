@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="pixel-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#11998e"/>
+      <stop offset="100%" style="stop-color:#38ef7d"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" fill="url(#pixel-bg)"/>
+  <!-- Pixel character -->
+  <!-- Hair -->
+  <rect x="70" y="40" width="60" height="10" fill="#8B4513"/>
+  <rect x="60" y="50" width="80" height="10" fill="#8B4513"/>
+  <rect x="60" y="60" width="20" height="10" fill="#8B4513"/>
+  <rect x="120" y="60" width="20" height="10" fill="#8B4513"/>
+  <!-- Face -->
+  <rect x="70" y="60" width="60" height="50" fill="#FFE4C4"/>
+  <rect x="60" y="70" width="10" height="30" fill="#FFE4C4"/>
+  <rect x="130" y="70" width="10" height="30" fill="#FFE4C4"/>
+  <!-- Eyes -->
+  <rect x="80" y="80" width="10" height="10" fill="white"/>
+  <rect x="110" y="80" width="10" height="10" fill="white"/>
+  <rect x="85" y="85" width="5" height="5" fill="#333"/>
+  <rect x="115" y="85" width="5" height="5" fill="#333"/>
+  <!-- Mouth -->
+  <rect x="90" y="100" width="20" height="5" fill="#c44569"/>
+  <!-- Body -->
+  <rect x="70" y="110" width="60" height="40" fill="#4169E1"/>
+  <rect x="60" y="120" width="10" height="20" fill="#4169E1"/>
+  <rect x="130" y="120" width="10" height="20" fill="#4169E1"/>
+  <!-- Arms -->
+  <rect x="50" y="120" width="10" height="30" fill="#FFE4C4"/>
+  <rect x="140" y="120" width="10" height="30" fill="#FFE4C4"/>
+  <!-- Legs -->
+  <rect x="75" y="150" width="15" height="30" fill="#333"/>
+  <rect x="110" y="150" width="15" height="30" fill="#333"/>
+  <!-- Feet -->
+  <rect x="70" y="175" width="20" height="10" fill="#8B4513"/>
+  <rect x="110" y="175" width="20" height="10" fill="#8B4513"/>
+</svg>

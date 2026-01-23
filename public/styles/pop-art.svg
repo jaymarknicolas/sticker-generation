@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="pop-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f093fb"/>
+      <stop offset="100%" style="stop-color:#f5576c"/>
+    </linearGradient>
+    <pattern id="halftone" patternUnits="userSpaceOnUse" width="8" height="8">
+      <circle cx="4" cy="4" r="2" fill="#333" opacity="0.3"/>
+    </pattern>
+  </defs>
+  <rect width="200" height="200" fill="#FFFF00"/>
+  <rect width="200" height="200" fill="url(#halftone)"/>
+  <!-- Pop art face -->
+  <ellipse cx="100" cy="100" rx="60" ry="70" fill="#FFE4C4" stroke="#000" stroke-width="4"/>
+  <!-- Bold hair -->
+  <path d="M 40 90 Q 30 40 100 50 Q 170 40 160 90" fill="#FF0000" stroke="#000" stroke-width="3"/>
+  <!-- Eyes -->
+  <ellipse cx="75" cy="90" rx="18" ry="12" fill="white" stroke="#000" stroke-width="3"/>
+  <ellipse cx="125" cy="90" rx="18" ry="12" fill="white" stroke="#000" stroke-width="3"/>
+  <circle cx="75" cy="90" r="8" fill="#00BFFF"/>
+  <circle cx="125" cy="90" r="8" fill="#00BFFF"/>
+  <circle cx="75" cy="90" r="4" fill="#000"/>
+  <circle cx="125" cy="90" r="4" fill="#000"/>
+  <!-- Eyebrows -->
+  <path d="M 55 75 Q 75 70 90 78" stroke="#000" stroke-width="4" fill="none"/>
+  <path d="M 110 78 Q 125 70 145 75" stroke="#000" stroke-width="4" fill="none"/>
+  <!-- Lips -->
+  <ellipse cx="100" cy="130" rx="20" ry="10" fill="#FF0000" stroke="#000" stroke-width="2"/>
+  <!-- POW burst -->
+  <polygon points="160,30 170,50 190,45 175,60 185,80 165,70 155,85 150,65 130,70 145,55 135,40 155,45" fill="#FFFF00" stroke="#000" stroke-width="2"/>
+</svg>

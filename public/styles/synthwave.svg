@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="synth-bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f0c29"/>
+      <stop offset="50%" style="stop-color:#302b63"/>
+      <stop offset="100%" style="stop-color:#24243e"/>
+    </linearGradient>
+    <linearGradient id="synth-sun" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff0080"/>
+      <stop offset="50%" style="stop-color:#ff6b35"/>
+      <stop offset="100%" style="stop-color:#f9d423"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" fill="url(#synth-bg)"/>
+  <!-- Sun -->
+  <circle cx="100" cy="100" r="40" fill="url(#synth-sun)"/>
+  <!-- Sun lines -->
+  <rect x="60" y="95" width="80" height="3" fill="#0f0c29"/>
+  <rect x="60" y="105" width="80" height="4" fill="#0f0c29"/>
+  <rect x="60" y="115" width="80" height="5" fill="#0f0c29"/>
+  <rect x="60" y="125" width="80" height="6" fill="#0f0c29"/>
+  <!-- Grid -->
+  <g stroke="#ff00ff" stroke-width="1" opacity="0.6">
+    <line x1="0" y1="150" x2="200" y2="200"/>
+    <line x1="50" y1="150" x2="50" y2="200"/>
+    <line x1="100" y1="150" x2="100" y2="200"/>
+    <line x1="150" y1="150" x2="150" y2="200"/>
+    <line x1="0" y1="165" x2="200" y2="165"/>
+    <line x1="0" y1="180" x2="200" y2="180"/>
+  </g>
+  <!-- Mountains -->
+  <polygon points="0,150 50,100 100,150" fill="#1a1a2e" opacity="0.8"/>
+  <polygon points="100,150 160,80 200,150" fill="#16213e" opacity="0.8"/>
+  <!-- Stars -->
+  <circle cx="30" cy="30" r="2" fill="white"/>
+  <circle cx="170" cy="40" r="1.5" fill="white"/>
+  <circle cx="150" cy="20" r="1" fill="white"/>
+  <circle cx="50" cy="50" r="1" fill="#ff00ff"/>
+  <circle cx="180" cy="70" r="1.5" fill="#00ffff"/>
+</svg>

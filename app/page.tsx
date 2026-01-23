@@ -11,6 +11,7 @@ import RecentlyUsed from "@/components/recently-used";
 import BottomNav from "@/components/bottom-nav";
 import GenerationProgress from "@/components/generation-progress";
 import DesignPicker from "@/components/design-picker";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { useGeneration } from "@/hooks/use-generation";
 import { Style, SelectedStyle } from "@/lib/types";
 import { STICKER_STYLES } from "@/lib/prompt-builder";
@@ -21,6 +22,7 @@ const styles: Style[] = Object.entries(STICKER_STYLES).map(([key, value], index)
   name: value.name,
   type: key,
   image: value.color,
+  previewImage: value.previewImage,
   description: value.description,
 }));
 
@@ -53,10 +55,7 @@ export default function Home() {
   } = useGeneration({
     onComplete: (images) => {
       console.log("Generation complete:", images);
-      // Automatically show design picker when generation completes
-      if (images.length > 0) {
-        setTimeout(() => setShowDesignPicker(true), 1000);
-      }
+      // Design picker is shown automatically when generatedImages has items
     },
     onError: (error) => {
       console.error("Generation error:", error);
@@ -80,7 +79,8 @@ export default function Home() {
       style: selectedStyle.type,
       customPrompt: customPrompt.trim() || undefined,
       subject,
-      numberOfVariations: 1, // Start with 1 for cost efficiency
+      numberOfVariations: 1, // Generate only 1 image
+      imageBase64: uploadedImage || undefined,
     });
   }, [selectedStyle, customPrompt, uploadedImage, generate]);
 
@@ -121,18 +121,7 @@ export default function Home() {
     reset();
   };
 
-  // Show design picker when we have generated images
-  if (showDesignPicker && generatedImages.length > 0) {
-    return (
-      <DesignPicker
-        designs={generatedImages}
-        onBack={handleBack}
-        onConfirm={handleConfirm}
-      />
-    );
-  }
-
-  // Show generation progress
+  // Show generation progress while generating
   if (isGenerating) {
     return (
       <GenerationProgress
@@ -141,6 +130,17 @@ export default function Home() {
         generatedCount={generatedCount}
         onClose={handleCloseGeneration}
         onComplete={() => setShowDesignPicker(true)}
+      />
+    );
+  }
+
+  // Show design picker when we have generated images (immediately after generation)
+  if (generatedImages.length > 0) {
+    return (
+      <DesignPicker
+        designs={generatedImages}
+        onBack={handleBack}
+        onConfirm={handleConfirm}
       />
     );
   }
@@ -168,6 +168,7 @@ export default function Home() {
             <Button variant="ghost" size="sm" className="hidden sm:flex">
               History
             </Button>
+            <ThemeToggle />
           </div>
         </div>
       </header>
@@ -181,7 +182,10 @@ export default function Home() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setLocalError(null)}
+              onClick={() => {
+                setLocalError(null);
+                reset(); // Also clear generation error
+              }}
               className="ml-auto text-destructive hover:text-destructive"
             >
               Dismiss

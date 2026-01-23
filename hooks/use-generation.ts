@@ -13,6 +13,7 @@ interface GenerateParams {
   customPrompt?: string;
   subject?: string;
   numberOfVariations?: number;
+  imageBase64?: string;
 }
 
 export function useGeneration(options: UseGenerationOptions = {}) {
@@ -33,7 +34,7 @@ export function useGeneration(options: UseGenerationOptions = {}) {
 
   const generate = useCallback(
     async (params: GenerateParams) => {
-      const { style, customPrompt, subject, numberOfVariations = 1 } = params;
+      const { style, customPrompt, subject, numberOfVariations = 1, imageBase64 } = params;
 
       // Reset state
       setState({
@@ -57,14 +58,22 @@ export function useGeneration(options: UseGenerationOptions = {}) {
         });
       }, 800);
 
-      // Update status text
-      const statusTexts = [
-        "Analyzing your style...",
-        "Processing textures...",
-        "Applying artistic effects...",
-        "Generating unique designs...",
-        "Adding final touches...",
-      ];
+      // Update status text based on whether image is provided
+      const statusTexts = imageBase64
+        ? [
+            "AI is analyzing your photo...",
+            "Understanding the composition...",
+            "Applying your chosen style...",
+            "Creating your unique sticker...",
+            "Finalizing the design...",
+          ]
+        : [
+            "Preparing your style...",
+            "Processing artistic elements...",
+            "Generating your design...",
+            "Creating your sticker...",
+            "Adding final touches...",
+          ];
       let statusIndex = 0;
       const statusInterval = setInterval(() => {
         statusIndex = (statusIndex + 1) % statusTexts.length;
@@ -85,6 +94,7 @@ export function useGeneration(options: UseGenerationOptions = {}) {
             customPrompt,
             subject,
             numberOfVariations,
+            imageBase64,
           }),
         });
 

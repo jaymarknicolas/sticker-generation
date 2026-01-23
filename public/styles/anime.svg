@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="anime-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff6b9d"/>
+      <stop offset="100%" style="stop-color:#c44569"/>
+    </linearGradient>
+    <linearGradient id="anime-hair" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF69B4"/>
+      <stop offset="100%" style="stop-color:#DB7093"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" fill="url(#anime-bg)"/>
+  <!-- Hair back -->
+  <path d="M 40 180 Q 30 100 60 60 Q 100 30 140 60 Q 170 100 160 180" fill="url(#anime-hair)"/>
+  <!-- Face -->
+  <ellipse cx="100" cy="110" rx="40" ry="45" fill="#FFE4C4"/>
+  <!-- Big anime eyes -->
+  <ellipse cx="80" cy="105" rx="15" ry="18" fill="white"/>
+  <ellipse cx="120" cy="105" rx="15" ry="18" fill="white"/>
+  <!-- Iris -->
+  <ellipse cx="82" cy="108" rx="10" ry="12" fill="#9370DB"/>
+  <ellipse cx="122" cy="108" rx="10" ry="12" fill="#9370DB"/>
+  <!-- Pupil -->
+  <ellipse cx="84" cy="110" rx="5" ry="6" fill="#333"/>
+  <ellipse cx="124" cy="110" rx="5" ry="6" fill="#333"/>
+  <!-- Eye sparkles -->
+  <circle cx="87" cy="103" r="3" fill="white"/>
+  <circle cx="127" cy="103" r="3" fill="white"/>
+  <circle cx="79" cy="112" r="2" fill="white"/>
+  <circle cx="119" cy="112" r="2" fill="white"/>
+  <!-- Nose and mouth -->
+  <path d="M 100 118 L 100 122" stroke="#DEB887" stroke-width="1.5"/>
+  <path d="M 93 130 Q 100 135 107 130" stroke="#c44569" stroke-width="1.5" fill="none"/>
+  <!-- Hair front -->
+  <path d="M 55 75 Q 70 50 100 55 Q 130 50 145 75 L 140 90 Q 120 70 100 75 Q 80 70 60 90 Z" fill="url(#anime-hair)"/>
+  <!-- Blush -->
+  <ellipse cx="65" cy="120" rx="8" ry="4" fill="#FFB6C1" opacity="0.6"/>
+  <ellipse cx="135" cy="120" rx="8" ry="4" fill="#FFB6C1" opacity="0.6"/>
+</svg>

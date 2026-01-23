@@ -1,69 +1,102 @@
-'use client'
+"use client";
 
-import React, { useRef, useState } from 'react'
-import { ImageIcon, X, Upload, Camera } from 'lucide-react'
+import React, { useRef, useState } from "react";
+import { ImageIcon, X, Upload, Camera } from "lucide-react";
 
 interface ImageUploadProps {
-  onImageUpload: (image: string | null) => void
-  image: string | null
+  onImageUpload: (image: string | null) => void;
+  image: string | null;
 }
 
-export default function ImageUpload({ onImageUpload, image }: ImageUploadProps) {
-  const inputRef = useRef<HTMLInputElement>(null)
-  const [isDragging, setIsDragging] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+export default function ImageUpload({
+  onImageUpload,
+  image,
+}: ImageUploadProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleFile = (file: File) => {
-    // Validate file size (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      alert('File size must be less than 10MB')
-      return
-    }
+  const handleFile = async (file: File) => {
+    setIsLoading(true);
 
-    setIsLoading(true)
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      if (e.target?.result) {
-        onImageUpload(e.target.result as string)
+    try {
+      // Load the image
+      const imageUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target?.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      // Create an image element to get dimensions
+      const img = new Image();
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = reject;
+        img.src = imageUrl;
+      });
+
+      // Resize if larger than 2048px (to optimize for API)
+      const MAX_SIZE = 2048;
+      let { width, height } = img;
+
+      if (width > MAX_SIZE || height > MAX_SIZE) {
+        const scale = Math.min(MAX_SIZE / width, MAX_SIZE / height);
+        width = Math.round(width * scale);
+        height = Math.round(height * scale);
       }
-      setIsLoading(false)
+
+      // Create canvas and resize
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+
+      if (!ctx) {
+        throw new Error("Failed to get canvas context");
+      }
+
+      ctx.drawImage(img, 0, 0, width, height);
+
+      // Convert to PNG (required by OpenAI variations API)
+      const resizedImage = canvas.toDataURL("image/png", 0.9);
+      onImageUpload(resizedImage);
+    } catch {
+      alert("Failed to process image");
+    } finally {
+      setIsLoading(false);
     }
-    reader.onerror = () => {
-      setIsLoading(false)
-      alert('Failed to read file')
-    }
-    reader.readAsDataURL(file)
-  }
+  };
 
   const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsDragging(true)
-  }
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
 
   const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsDragging(false)
-  }
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
 
   const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsDragging(false)
-    const file = e.dataTransfer.files?.[0]
-    if (file?.type.startsWith('image/')) {
-      handleFile(file)
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file?.type.startsWith("image/")) {
+      handleFile(file);
     }
-  }
+  };
 
   const handleClear = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    onImageUpload(null)
+    e.stopPropagation();
+    onImageUpload(null);
     if (inputRef.current) {
-      inputRef.current.value = ''
+      inputRef.current.value = "";
     }
-  }
+  };
 
   return (
     <div
@@ -73,10 +106,10 @@ export default function ImageUpload({ onImageUpload, image }: ImageUploadProps) 
       onDrop={handleDrop}
       className={`relative w-full rounded-2xl border-2 border-dashed transition-all cursor-pointer min-h-48 sm:min-h-64 flex items-center justify-center overflow-hidden ${
         isDragging
-          ? 'border-primary bg-primary/10 scale-[1.02]'
+          ? "border-primary bg-primary/10 scale-[1.02]"
           : image
-            ? 'border-transparent'
-            : 'border-border bg-card hover:border-primary/50 hover:bg-card/80'
+            ? "border-transparent"
+            : "border-border bg-card hover:border-primary/50 hover:bg-card/80"
       }`}
     >
       <input
@@ -85,18 +118,20 @@ export default function ImageUpload({ onImageUpload, image }: ImageUploadProps) 
         accept="image/*"
         className="hidden"
         onChange={(e) => {
-          const file = e.target.files?.[0]
-          if (file) handleFile(file)
+          const file = e.target.files?.[0];
+          if (file) handleFile(file);
         }}
       />
 
       {isLoading ? (
         <div className="text-center space-y-3 px-4">
           <div className="w-10 h-10 sm:w-12 sm:h-12 mx-auto border-2 border-primary border-t-transparent rounded-full animate-spin" />
-          <p className="text-muted-foreground font-medium text-sm sm:text-base">Loading image...</p>
+          <p className="text-muted-foreground font-medium text-sm sm:text-base">
+            Loading image...
+          </p>
         </div>
       ) : image ? (
-        <div className="w-full h-full relative min-h-48 sm:min-h-64">
+        <div className="relative h-96 sm:h-[calc(100vh-20rem)] w-full">
           <img
             src={image}
             alt="Uploaded"
@@ -128,7 +163,7 @@ export default function ImageUpload({ onImageUpload, image }: ImageUploadProps) 
           </div>
           <div className="space-y-1">
             <p className="text-foreground font-semibold text-sm sm:text-base">
-              {isDragging ? 'Drop your image here' : 'Upload an image'}
+              {isDragging ? "Drop your image here" : "Upload an image"}
             </p>
             <p className="text-muted-foreground text-xs sm:text-sm">
               Drag & drop or click to browse
@@ -136,10 +171,10 @@ export default function ImageUpload({ onImageUpload, image }: ImageUploadProps) 
           </div>
           <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
             <Camera className="w-3.5 h-3.5" />
-            <span>PNG, JPG, WEBP up to 10MB</span>
+            <span>Any image format supported</span>
           </div>
         </div>
       )}
     </div>
-  )
+  );
 }

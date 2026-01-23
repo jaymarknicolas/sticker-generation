@@ -1,13 +1,16 @@
 'use client'
 
 import { Check, Star, Sparkles } from 'lucide-react'
+import Image from 'next/image'
+import { useState } from 'react'
 
 interface StyleCardProps {
   style: {
     id: string
     name: string
     type: string
-    image: string
+    image: string // gradient fallback
+    previewImage?: string // actual preview image URL
     description?: string
   }
   isSelected: boolean
@@ -18,6 +21,8 @@ interface StyleCardProps {
 export default function StyleCard({ style, isSelected, onClick, featured }: StyleCardProps) {
   // Determine featured status - use prop if provided, otherwise use first style as featured
   const isFeatured = featured ?? style.id === "1"
+  const [imageError, setImageError] = useState(false)
+  const hasPreviewImage = style.previewImage && !imageError
 
   return (
     <button
@@ -28,13 +33,24 @@ export default function StyleCard({ style, isSelected, onClick, featured }: Styl
           : 'hover:scale-105 hover:ring-1 hover:ring-primary/30'
       }`}
     >
-      {/* Background */}
-      <div
-        className="absolute inset-0 transition-transform duration-300 group-hover:scale-110"
-        style={{
-          background: style.image,
-        }}
-      />
+      {/* Background - Image or Gradient */}
+      {hasPreviewImage ? (
+        <Image
+          src={style.previewImage!}
+          alt={style.name}
+          fill
+          className="object-cover transition-transform duration-300 group-hover:scale-110"
+          onError={() => setImageError(true)}
+          sizes="(max-width: 640px) 33vw, (max-width: 1024px) 25vw, 20vw"
+        />
+      ) : (
+        <div
+          className="absolute inset-0 transition-transform duration-300 group-hover:scale-110"
+          style={{
+            background: style.image,
+          }}
+        />
+      )}
 
       {/* Overlay */}
       <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
