@@ -23,6 +23,8 @@ export interface GenerateImageParams {
   style?: "vivid" | "natural";
   numOutputs?: number;
   imageBase64?: string;
+  customPrompt?: string; // User's custom prompt for style override
+  customPromptOnly?: boolean; // When true, use ONLY the custom prompt style
 }
 
 export interface GeneratedImage {
@@ -681,6 +683,8 @@ export async function generateImage(
     style = "vivid",
     numOutputs = 1,
     imageBase64,
+    customPrompt,
+    customPromptOnly = false,
   } = params;
 
   const openai = getOpenAIClient();
@@ -688,13 +692,39 @@ export async function generateImage(
   try {
     let finalPrompt = prompt;
 
+    // Determine the effective style to use
+    // If custom prompt contains style instructions, use it instead of styleName
+    const hasCustomStyleInstructions = customPrompt && (
+      customPrompt.toLowerCase().includes("style") ||
+      customPrompt.toLowerCase().includes("ghibli") ||
+      customPrompt.toLowerCase().includes("anime") ||
+      customPrompt.toLowerCase().includes("disney") ||
+      customPrompt.toLowerCase().includes("pixar") ||
+      customPrompt.toLowerCase().includes("watercolor") ||
+      customPrompt.toLowerCase().includes("cartoon") ||
+      customPrompt.toLowerCase().includes("cinematic") ||
+      customPrompt.toLowerCase().includes("realistic") ||
+      customPrompt.toLowerCase().includes("artistic") ||
+      customPrompt.length > 50
+    );
+
+    // Use custom prompt style if it has style instructions OR customPromptOnly is true
+    const effectiveStyle = (customPromptOnly || hasCustomStyleInstructions) && customPrompt
+      ? customPrompt.trim()
+      : styleName;
+
+    const useCustomStyleMode = customPromptOnly || hasCustomStyleInstructions;
+
     // If an image is provided, analyze it and create a style-focused prompt
     if (imageBase64) {
-      console.log(`Analyzing uploaded image for ${styleName} style...`);
+      console.log(`Analyzing uploaded image...`);
+      console.log(`Custom prompt mode: ${useCustomStyleMode ? 'YES - using custom prompt as style' : 'NO - using selected style'}`);
+      console.log(`Effective style: ${useCustomStyleMode ? 'CUSTOM: ' + effectiveStyle.substring(0, 100) + '...' : styleName}`);
+
       const cleanedImage = cleanBase64Image(imageBase64);
       const imageDescription = await analyzeImageWithVision(
         cleanedImage,
-        styleName,
+        useCustomStyleMode ? "custom artistic" : styleName,
       );
       console.log("Image description:", imageDescription);
 
@@ -719,7 +749,32 @@ export async function generateImage(
       if (peopleCount > 0) {
         const countPhrase = numberToWord(peopleCount, "person", "people");
 
-        finalPrompt = `Create a ${styleName} style sticker illustration showing EXACTLY ${countPhrase}.
+        if (useCustomStyleMode) {
+          // CUSTOM STYLE MODE: Use the user's custom prompt as the primary style instruction
+          finalPrompt = `${effectiveStyle}
+
+APPLY THE ABOVE STYLE TO THIS SUBJECT - Create a sticker illustration showing EXACTLY ${countPhrase}:
+
+DETAILED SUBJECT DESCRIPTION:
+${imageDescription}
+
+CRITICAL REQUIREMENTS - MUST FOLLOW:
+1. STYLE: Follow the style instructions above EXACTLY as specified
+2. NUMBER: Show EXACTLY ${countPhrase} - not ${peopleCount - 1}, not ${peopleCount + 1}, EXACTLY ${peopleCount}
+3. SKIN TONES: Match the exact skin tones described for each person
+4. GENDER: Match the gender of each person as described
+5. CLOTHING: Match exact clothing colors and types for each person
+6. HAIR: Match exact hair color, length, and style for each person
+7. POSES: Match the poses and actions described
+8. EXPRESSIONS: Match the facial expressions and emotions described
+9. ARRANGEMENT: Position people exactly as described (left/center/right)
+10. BACKGROUND: Include the background setting as described
+
+ABSOLUTELY NO TEXT - No words, letters, numbers, labels, captions, watermarks, or any written content anywhere in the image.
+NO COLOR PALETTES - Do not add any color swatches, color palette strips, color samples, color bars, or reference colors at the edges or bottom of the image. The image should contain ONLY the sticker illustration itself with nothing else.`;
+        } else {
+          // STANDARD MODE: Use the selected style
+          finalPrompt = `Create a ${styleName} style sticker illustration showing EXACTLY ${countPhrase}.
 
 DETAILED SUBJECT DESCRIPTION:
 ${imageDescription}
@@ -736,12 +791,33 @@ CRITICAL REQUIREMENTS - MUST FOLLOW:
 9. BACKGROUND: Include the background setting as described
 10. STYLE: ${styleName} artistic style with clean sticker edges
 
-ABSOLUTELY NO TEXT - No words, letters, numbers, labels, captions, watermarks, or any written content anywhere in the image.`;
+ABSOLUTELY NO TEXT - No words, letters, numbers, labels, captions, watermarks, or any written content anywhere in the image.
+NO COLOR PALETTES - Do not add any color swatches, color palette strips, color samples, color bars, or reference colors at the edges or bottom of the image. The image should contain ONLY the sticker illustration itself with nothing else.`;
+        }
 
       } else if (objectCount > 0) {
         const countPhrase = numberToWord(objectCount, "object", "objects");
 
-        finalPrompt = `Create a ${styleName} style sticker illustration showing EXACTLY ${countPhrase}.
+        if (useCustomStyleMode) {
+          finalPrompt = `${effectiveStyle}
+
+APPLY THE ABOVE STYLE TO THIS SUBJECT - Create a sticker illustration showing EXACTLY ${countPhrase}:
+
+DETAILED SUBJECT DESCRIPTION:
+${imageDescription}
+
+CRITICAL REQUIREMENTS:
+1. STYLE: Follow the style instructions above EXACTLY as specified
+2. NUMBER: Show EXACTLY ${countPhrase} as described
+3. COLORS: Match exact colors for each object
+4. DETAILS: Include all specific details mentioned
+5. ARRANGEMENT: Position objects as described
+6. BACKGROUND: Include background as described
+
+ABSOLUTELY NO TEXT - No words, letters, numbers, or writing anywhere.
+NO COLOR PALETTES - No color swatches, color strips, or color samples at the edges or bottom of the image.`;
+        } else {
+          finalPrompt = `Create a ${styleName} style sticker illustration showing EXACTLY ${countPhrase}.
 
 DETAILED SUBJECT DESCRIPTION:
 ${imageDescription}
@@ -754,11 +830,30 @@ CRITICAL REQUIREMENTS:
 5. BACKGROUND: Include background as described
 6. STYLE: ${styleName} artistic style with clean sticker edges
 
-ABSOLUTELY NO TEXT - No words, letters, numbers, or writing anywhere.`;
+ABSOLUTELY NO TEXT - No words, letters, numbers, or writing anywhere.
+NO COLOR PALETTES - No color swatches, color strips, or color samples at the edges or bottom of the image.`;
+        }
 
       } else {
         // Fallback for scenes, animals, or unspecified
-        finalPrompt = `Create a ${styleName} style sticker illustration:
+        if (useCustomStyleMode) {
+          finalPrompt = `${effectiveStyle}
+
+APPLY THE ABOVE STYLE TO CREATE A STICKER ILLUSTRATION:
+
+DETAILED DESCRIPTION:
+${imageDescription}
+
+REQUIREMENTS:
+- Follow the style instructions above EXACTLY as specified
+- Match all visual details exactly as described
+- Match all colors exactly as described
+- Include background as described
+- Create clean sticker edges
+- ABSOLUTELY NO TEXT, words, letters, or writing anywhere in the image
+- NO COLOR PALETTES, color swatches, or color samples at edges or bottom of image`;
+        } else {
+          finalPrompt = `Create a ${styleName} style sticker illustration:
 
 DETAILED DESCRIPTION:
 ${imageDescription}
@@ -768,7 +863,9 @@ REQUIREMENTS:
 - Match all colors exactly as described
 - Include background as described
 - ${styleName} artistic style with clean sticker edges
-- ABSOLUTELY NO TEXT, words, letters, or writing anywhere in the image`;
+- ABSOLUTELY NO TEXT, words, letters, or writing anywhere in the image
+- NO COLOR PALETTES, color swatches, or color samples at edges or bottom of image`;
+        }
       }
 
       console.log("Final prompt:", finalPrompt);

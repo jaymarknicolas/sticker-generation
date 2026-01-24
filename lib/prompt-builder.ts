@@ -271,6 +271,7 @@ export interface PromptBuilderParams {
   customPrompt?: string;
   includeSticker?: boolean;
   imageBase64?: string;
+  customPromptOnly?: boolean; // When true, use ONLY the custom prompt, ignore style
 }
 
 export interface DetailedPromptResult {
@@ -283,7 +284,7 @@ export interface DetailedPromptResult {
  * Designed for Google Nano Banana / Gemini 2.5 model
  */
 export function buildStickerPrompt(params: PromptBuilderParams): string {
-  const { subject, style, customPrompt, includeSticker = true } = params;
+  const { subject, style, customPrompt, includeSticker = true, customPromptOnly = false } = params;
 
   // Get style configuration
   const styleConfig =
@@ -298,9 +299,36 @@ export function buildStickerPrompt(params: PromptBuilderParams): string {
   // 1. Core subject
   const cleanSubject = subject.trim();
 
-  // 2. Style
-  if (styleConfig) {
-    promptParts.push(styleConfig.promptModifier);
+  // Check if custom prompt contains style instructions (e.g., "Studio Ghibli", "anime style", etc.)
+  const hasCustomStyleInstructions = customPrompt && (
+    customPrompt.toLowerCase().includes("style") ||
+    customPrompt.toLowerCase().includes("ghibli") ||
+    customPrompt.toLowerCase().includes("anime") ||
+    customPrompt.toLowerCase().includes("disney") ||
+    customPrompt.toLowerCase().includes("pixar") ||
+    customPrompt.toLowerCase().includes("watercolor") ||
+    customPrompt.toLowerCase().includes("cartoon") ||
+    customPrompt.toLowerCase().includes("cinematic") ||
+    customPrompt.toLowerCase().includes("realistic") ||
+    customPrompt.toLowerCase().includes("artistic") ||
+    customPrompt.length > 50 // Long custom prompts likely contain style instructions
+  );
+
+  // 2. PRIORITY: Custom prompt FIRST if it has style instructions or customPromptOnly mode
+  if (customPromptOnly || hasCustomStyleInstructions) {
+    // Use custom prompt as the PRIMARY style instruction
+    if (customPrompt && customPrompt.trim()) {
+      promptParts.push(customPrompt.trim());
+    }
+  } else {
+    // Use style's prompt modifier when no custom style instructions
+    if (styleConfig) {
+      promptParts.push(styleConfig.promptModifier);
+    }
+    // Add custom prompt as secondary addition
+    if (customPrompt && customPrompt.trim()) {
+      promptParts.push(customPrompt.trim());
+    }
   }
 
   // 3. Format
@@ -308,21 +336,18 @@ export function buildStickerPrompt(params: PromptBuilderParams): string {
     promptParts.push("sticker design");
   }
 
-  // 4. Subject
-  promptParts.push(`of ${cleanSubject}`);
-
-  // 5. Custom additions
-  if (customPrompt && customPrompt.trim()) {
-    promptParts.push(customPrompt.trim());
+  // 4. Subject (only add if not already in custom prompt)
+  if (!customPromptOnly && !hasCustomStyleInstructions) {
+    promptParts.push(`of ${cleanSubject}`);
   }
 
-  // 6. Quality
+  // 5. Quality
   promptParts.push("high quality, detailed, professional");
 
-  // 7. No text
+  // 6. No text
   promptParts.push("no text, no words, no letters");
 
-  // 8. Background
+  // 7. Background
   if (includeSticker) {
     promptParts.push("clean sticker edges");
   }
@@ -357,6 +382,12 @@ export function getNegativePrompt(style: StyleKey | string): string {
     "watermark",
     "signature",
     "logo",
+    "color palette",
+    "color swatches",
+    "color samples",
+    "color strips",
+    "color bars",
+    "reference colors",
     "blurry",
     "low quality",
     "distorted",

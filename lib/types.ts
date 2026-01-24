@@ -36,6 +36,7 @@ export interface GenerationRequest {
   customPrompt?: string;
   subject?: string;
   numberOfVariations?: number;
+  customPromptOnly?: boolean; // When true, use ONLY the custom prompt, ignore selected style
 }
 
 export interface GenerationResponse {

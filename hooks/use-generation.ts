@@ -14,6 +14,7 @@ interface GenerateParams {
   subject?: string;
   numberOfVariations?: number;
   imageBase64?: string;
+  customPromptOnly?: boolean;
 }
 
 export function useGeneration(options: UseGenerationOptions = {}) {
@@ -34,7 +35,7 @@ export function useGeneration(options: UseGenerationOptions = {}) {
 
   const generate = useCallback(
     async (params: GenerateParams) => {
-      const { style, customPrompt, subject, numberOfVariations = 1, imageBase64 } = params;
+      const { style, customPrompt, subject, numberOfVariations = 1, imageBase64, customPromptOnly = false } = params;
 
       // Reset state
       setState({
@@ -95,6 +96,7 @@ export function useGeneration(options: UseGenerationOptions = {}) {
             subject,
             numberOfVariations,
             imageBase64,
+            customPromptOnly,
           }),
         });
 

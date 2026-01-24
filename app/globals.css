@@ -3,80 +3,138 @@
 
 @custom-variant dark (&:is(.dark, .dark *));
 
+/*
+  SYNTHETIK Design System
+  A modern, creative design for AI sticker generation
+
+  Color Philosophy:
+  - Violet/Purple: AI, creativity, imagination
+  - Cyan/Teal: Technology, freshness, innovation
+  - Pink/Magenta: Fun, playful, artistic
+  - Amber/Gold: Energy, warmth, premium feel
+*/
+
 :root {
-  --background: #ffffff;
-  --foreground: #1f2937;
-  --card: #f9fafb;
-  --card-foreground: #1f2937;
-  --popover: #ffffff;
-  --popover-foreground: #1f2937;
-  --primary: #2563eb;
-  --primary-foreground: #ffffff;
-  --secondary: #7c3aed;
-  --secondary-foreground: #ffffff;
-  --muted: #f3f4f6;
-  --muted-foreground: #6b7280;
-  --accent: #6366f1;
-  --accent-foreground: #ffffff;
-  --destructive: #dc2626;
-  --destructive-foreground: #ffffff;
-  --border: #e5e7eb;
-  --input: #f3f4f6;
-  --ring: #2563eb;
-  --chart-1: #3b82f6;
-  --chart-2: #a855f7;
-  --chart-3: #ec4899;
-  --chart-4: #f59e0b;
-  --chart-5: #10b981;
-  --radius: 0.75rem;
-  --sidebar: #f9fafb;
-  --sidebar-foreground: #1f2937;
-  --sidebar-primary: #2563eb;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #7c3aed;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #e5e7eb;
-  --sidebar-ring: #2563eb;
+  /* Light Theme - Clean & Professional */
+  --background: #FAFBFC;
+  --foreground: #0F172A;
+  --card: #FFFFFF;
+  --card-foreground: #0F172A;
+  --popover: #FFFFFF;
+  --popover-foreground: #0F172A;
+
+  /* Primary - Electric Violet */
+  --primary: #8B5CF6;
+  --primary-foreground: #FFFFFF;
+
+  /* Secondary - Cyan */
+  --secondary: #06B6D4;
+  --secondary-foreground: #FFFFFF;
+
+  /* Accent - Hot Pink */
+  --accent: #EC4899;
+  --accent-foreground: #FFFFFF;
+
+  /* Tertiary - Amber */
+  --tertiary: #F59E0B;
+  --tertiary-foreground: #FFFFFF;
+
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --border: #E2E8F0;
+  --input: #F8FAFC;
+  --ring: #8B5CF6;
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+  --gradient-secondary: linear-gradient(135deg, #06B6D4 0%, #8B5CF6 100%);
+  --gradient-accent: linear-gradient(135deg, #EC4899 0%, #F59E0B 100%);
+  --gradient-dark: linear-gradient(180deg, #0A0A0F 0%, #1A1A2E 100%);
+
+  /* Glass effect */
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.2);
+
+  /* Charts */
+  --chart-1: #8B5CF6;
+  --chart-2: #06B6D4;
+  --chart-3: #EC4899;
+  --chart-4: #F59E0B;
+  --chart-5: #10B981;
+
+  --radius: 1rem;
+
+  /* Sidebar */
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #0F172A;
+  --sidebar-primary: #8B5CF6;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #F1F5F9;
+  --sidebar-accent-foreground: #0F172A;
+  --sidebar-border: #E2E8F0;
+  --sidebar-ring: #8B5CF6;
 }
 
 .dark {
-  --background: #0f1419;
-  --foreground: #e5e7eb;
-  --card: #1a2035;
-  --card-foreground: #e5e7eb;
-  --popover: #1a2035;
-  --popover-foreground: #e5e7eb;
-  --primary: #2563eb;
-  --primary-foreground: #ffffff;
-  --secondary: #7c3aed;
-  --secondary-foreground: #ffffff;
-  --muted: #4b5563;
-  --muted-foreground: #9ca3af;
-  --accent: #6366f1;
-  --accent-foreground: #ffffff;
-  --destructive: #dc2626;
-  --destructive-foreground: #ffffff;
-  --border: #374151;
-  --input: #1f2937;
-  --ring: #2563eb;
-  --chart-1: #3b82f6;
-  --chart-2: #a855f7;
-  --chart-3: #ec4899;
-  --chart-4: #f59e0b;
-  --chart-5: #10b981;
-  --sidebar: #1a2035;
-  --sidebar-foreground: #e5e7eb;
-  --sidebar-primary: #2563eb;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #7c3aed;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #374151;
-  --sidebar-ring: #2563eb;
+  /* Dark Theme - Deep & Immersive */
+  --background: #0A0A0F;
+  --foreground: #F8FAFC;
+  --card: #12121A;
+  --card-foreground: #F8FAFC;
+  --popover: #12121A;
+  --popover-foreground: #F8FAFC;
+
+  /* Primary - Brighter Violet for dark mode */
+  --primary: #A78BFA;
+  --primary-foreground: #0A0A0F;
+
+  /* Secondary - Brighter Cyan */
+  --secondary: #22D3EE;
+  --secondary-foreground: #0A0A0F;
+
+  /* Accent - Brighter Pink */
+  --accent: #F472B6;
+  --accent-foreground: #0A0A0F;
+
+  /* Tertiary - Brighter Amber */
+  --tertiary: #FBBF24;
+  --tertiary-foreground: #0A0A0F;
+
+  --muted: #1E1E2A;
+  --muted-foreground: #94A3B8;
+  --destructive: #F87171;
+  --destructive-foreground: #0A0A0F;
+  --border: #2A2A3C;
+  --input: #1A1A24;
+  --ring: #A78BFA;
+
+  /* Glass effect - dark mode */
+  --glass-bg: rgba(18, 18, 26, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.1);
+
+  /* Charts - brighter for dark mode */
+  --chart-1: #A78BFA;
+  --chart-2: #22D3EE;
+  --chart-3: #F472B6;
+  --chart-4: #FBBF24;
+  --chart-5: #34D399;
+
+  /* Sidebar - dark */
+  --sidebar: #12121A;
+  --sidebar-foreground: #F8FAFC;
+  --sidebar-primary: #A78BFA;
+  --sidebar-primary-foreground: #0A0A0F;
+  --sidebar-accent: #1E1E2A;
+  --sidebar-accent-foreground: #F8FAFC;
+  --sidebar-border: #2A2A3C;
+  --sidebar-ring: #A78BFA;
 }
 
 @theme inline {
-  --font-sans: 'Geist', 'Geist Fallback';
-  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+  --font-sans: 'Geist', 'Geist Fallback', system-ui, sans-serif;
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback', monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -87,10 +145,10 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
@@ -120,7 +178,8 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
   html {
     scroll-behavior: smooth;
@@ -144,4 +203,178 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /* Gradient text */
+  .text-gradient {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-secondary {
+    background: var(--gradient-secondary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Gradient backgrounds */
+  .bg-gradient-primary {
+    background: var(--gradient-primary);
+  }
+
+  .bg-gradient-secondary {
+    background: var(--gradient-secondary);
+  }
+
+  .bg-gradient-accent {
+    background: var(--gradient-accent);
+  }
+
+  /* Glass morphism */
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+  }
+
+  /* Glow effects */
+  .glow-primary {
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3),
+                0 0 40px rgba(139, 92, 246, 0.1);
+  }
+
+  .glow-secondary {
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.3),
+                0 0 40px rgba(6, 182, 212, 0.1);
+  }
+
+  .glow-accent {
+    box-shadow: 0 0 20px rgba(236, 72, 153, 0.3),
+                0 0 40px rgba(236, 72, 153, 0.1);
+  }
+
+  /* Animated gradient border */
+  .gradient-border {
+    position: relative;
+    background: var(--card);
+    border-radius: var(--radius);
+  }
+
+  .gradient-border::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: calc(var(--radius) + 2px);
+    background: var(--gradient-primary);
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .gradient-border:hover::before {
+    opacity: 1;
+  }
+
+  /* Shimmer animation */
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.1) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+
+  /* Pulse glow animation */
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+    }
+    50% {
+      box-shadow: 0 0 40px rgba(139, 92, 246, 0.6),
+                  0 0 60px rgba(236, 72, 153, 0.3);
+    }
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  /* Float animation */
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  /* Gradient shift animation */
+  @keyframes gradient-shift {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  .animate-gradient {
+    background-size: 200% 200%;
+    animation: gradient-shift 3s ease infinite;
+  }
+}
+
+/* Custom scrollbar for non-hidden scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--muted);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--muted-foreground);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+/* Selection color */
+::selection {
+  background: rgba(139, 92, 246, 0.3);
+  color: inherit;
+}
+
+/* Focus visible styles */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
 }

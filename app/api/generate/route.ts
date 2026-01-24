@@ -38,6 +38,7 @@ export async function POST(
       subject,
       numberOfVariations = 1,
       imageBase64,
+      customPromptOnly = false,
     } = body;
 
     // Validate required fields
@@ -68,10 +69,13 @@ export async function POST(
       style: styleKey,
       customPrompt: customPrompt,
       includeSticker: true,
+      customPromptOnly: customPromptOnly,
     });
 
     console.log("=== STICKER GENERATION ===");
     console.log("Style:", styleKey);
+    console.log("Custom Prompt Only Mode:", customPromptOnly);
+    console.log("Custom Prompt:", customPrompt ? customPrompt.substring(0, 200) + "..." : "none");
     console.log("Subject:", finalSubject);
     console.log("Has reference image:", !!imageBase64);
     console.log("Prompt length:", prompt.length);
@@ -91,6 +95,8 @@ export async function POST(
         quality: "standard",
         style: "vivid",
         imageBase64: imageBase64,
+        customPrompt: customPrompt,
+        customPromptOnly: customPromptOnly,
       });
 
       // if (result && result.length > 0) {
@@ -271,6 +277,9 @@ function buildSubject(
  */
 function mapStyleToKey(style: string): StyleKey {
   const styleMap: Record<string, StyleKey> = {
+    // Custom/artistic mode - default to animated
+    artistic: "ANIMATED",
+    custom: "ANIMATED",
     // Direct mappings
     ghibli: "GHIBLI",
     animated: "ANIMATED",
